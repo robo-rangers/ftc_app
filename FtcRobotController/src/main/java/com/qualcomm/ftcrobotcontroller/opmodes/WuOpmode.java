@@ -12,7 +12,9 @@ public class WuOpmode extends OpMode{
 
     DcMotor backright, backleft, frontleft, frontright;
     Servo wheelTest;
-    double wheelPos;
+    int wheelPos;
+
+    double future;
 
     public WuOpmode(){
 
@@ -20,13 +22,14 @@ public class WuOpmode extends OpMode{
 
     public void init() //initialize
     {
-        backleft = hardwareMap.dcMotor.get("motor_1");
-        backright = hardwareMap.dcMotor.get("motor_2");
-        frontleft = hardwareMap.dcMotor.get("motor_3");
-        frontright = hardwareMap.dcMotor.get("motor_4");
-        wheelTest = hardwareMap.servo.get("S1");
+        backleft = hardwareMap.dcMotor.get("back1");
+        backright = hardwareMap.dcMotor.get("front1");
+        frontleft = hardwareMap.dcMotor.get("back2");
+        frontright = hardwareMap.dcMotor.get("front1");
+        wheelTest = hardwareMap.servo.get("180a");
 
-        wheelPos = 0.0;
+        wheelPos = 10;
+        future = time;
     }
     public void loop()
     {
@@ -35,9 +38,8 @@ public class WuOpmode extends OpMode{
         // direction: left_stick_x ranges from -1 to 1, where -1 is full left
         // and 1 is full right
         float direction = gamepad1.left_stick_x;
-
         // clip the right/left values so that the values never exceed +/- 1
-        direction = Range.clip(direction, -1, 1);
+        direction = Range.clip(direction, 0, 1);
 
         // scale the joystick value to make it easier to control
         // the robot more precisely at slower speeds.
@@ -45,20 +47,60 @@ public class WuOpmode extends OpMode{
         //left =  (float)scaleInput(left);
 
         // update the position of the arm.
-        if (gamepad1.x) {
+        if (gamepad1.left_bumper) {
             // if the A button is pushed on gamepad1, increment the position of
             // the arm servo.
-            wheelPos += direction;
+
+            if(future < time) {
+                future = time + .1;
+
+
+                wheelPos--;
+
+                if(wheelPos <= -1)
+                    wheelPos = 0;
+                wheelPos = Math.abs(wheelPos);
+
+            }
+            /*if (wheelPos > 0) {
+                wheelPos -= 0.1;
+            }*/
+            telemetry.addData("Text", "LEFT BUMPER");
+
         }
 
-        if (gamepad1.b) {
+        if (gamepad1.right_bumper) {
             // if the Y button is pushed on gamepad1, decrease the position of
             // the arm servo.
-            wheelPos -= direction;
+
+            if(future< time) {
+                future = time + .1;
+                wheelPos++;
+            }
+            /*if (wheelPos < 1) {
+                wheelPos += 0.1;
+            }*/
+
+            if(wheelPos >= 21)//lenght of the array, change if you cahnge the array
+                wheelPos = 20;
+            telemetry.addData("Text", "RIGHT BUMPER");
+
         }
 
+        if(gamepad1.left_trigger != 0){
+
+        }
+
+        if(gamepad1.right_trigger != 0){
+
+
+        }
+        //incretments from .2 straight to .5
+       // wheelPos = Range.clip(wheelPos, .2, .5);
+
         // write position values to the wrist and claw servo
-        wheelTest.setPosition(wheelPos);
+        wheelTest.setPosition(scaleWheelPos(wheelPos));
+
 
         /*
 		 * Send telemetry data back to driver station. Note that if we are using
@@ -68,7 +110,10 @@ public class WuOpmode extends OpMode{
 		 */
 
         telemetry.addData("Text", "*** Robot Data***");
-        telemetry.addData("wheel", "wheel:  " + String.format("%.2f", wheelPos));
+        telemetry.addData("wheel", "wheel:  " + wheelPos);//String.format("%.2f", wheelPos));
+        //telemetry.addData("time", "time:  " + String.format("%.2f", time));
+        //telemetry.addData("future", "future:  " + String.format("%.2f", future));
+        telemetry.addData("future", "RAF POWER:  " + String.format("%.2f", scaleWheelPos(wheelPos)));
     }
 
     public void stop() {
@@ -108,6 +153,12 @@ public class WuOpmode extends OpMode{
 
         // return scaled value.
         return dScale;
+    }
+    private double scaleWheelPos(int servoValue)
+    {
+        double[] values = {0.0, .05, .1 , .15, .2 , .25, .3 , .35, .4 , .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95, 1.0 };
+        int val = servoValue % values.length;
+        return values[val];
     }
 }
 

@@ -63,6 +63,8 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register ("PushBotManual", PushBotManual.class);
     manager.register ("SagarMode",SagarMode.class);
     manager.register("SURIEL MODE!!", SurielTeleOp.class);
+    manager.register("AliceMode",WuOpmode.class);
+
 
     /*
      * Uncomment any of the following lines if you want to register an op mode.
