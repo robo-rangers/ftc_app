@@ -14,9 +14,35 @@ cd ftc_app
 git pull
 
 
-****PUSHING SECTION
+****COMMITING SECTION
 git add -A
 
 git commit -m "SIMPLE COMMENT"
 
+
+***** BRANCHES / MERGING
+First, create a branch and switch to it 
+(This command does both at the same time)
+
+git checkout -b hotfix_servo
+
+Next, make some changes, run some tests, etc..
+
+Then switch back to the master branch
+
+git checkout master
+
+Finally, merge your changes
+
+git merge hotfix_servo
+
+Then you are ready to push
+
+***** PUSHING SECTION
+
 git push origin master
+
+
+
+
+
