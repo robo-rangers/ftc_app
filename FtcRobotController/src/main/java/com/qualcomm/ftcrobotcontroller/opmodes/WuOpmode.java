@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 public class WuOpmode extends OpMode{
 
     DcMotor backright, backleft, frontleft, frontright;
-    Servo wheelTest, continuosTest;
+    Servo wheelTest, continuousTest;
     int wheelPos;
     double future;
 
@@ -26,7 +26,7 @@ public class WuOpmode extends OpMode{
         frontleft = hardwareMap.dcMotor.get("back2");
         frontright = hardwareMap.dcMotor.get("front1");
         wheelTest = hardwareMap.servo.get("180a");
-        continuosTest = hardwareMap.servo.get("");
+        continuousTest = hardwareMap.servo.get("360a");
 
 
         wheelPos = 10;
@@ -51,10 +51,20 @@ public class WuOpmode extends OpMode{
         wheelPos = turnXAxis(gamepad1.left_bumper, gamepad1.right_bumper, wheelPos);
 
 
+
         if (gamepad1.a) {
-            continuosTest.setDirection(Servo.Direction.FORWARD);
+
+            continuousTest.setPosition(0);
+            //continuousTest.set
         }
 
+        if (gamepad1.b) {
+            continuousTest.setPosition(1);
+        }
+
+        if (gamepad1.x) {
+            continuousTest.setPosition(.5);
+        }
         wheelTest.setPosition(scaleWheelPos(wheelPos));
         updateGamepadTelemetry();
 
@@ -154,6 +164,8 @@ public class WuOpmode extends OpMode{
         telemetry.addData ("14", "GP1 RIGHTB: " + gamepad1.right_stick_button);
         telemetry.addData ("15", "GP1 RTRIG: " + gamepad1.left_trigger);
         telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
+        telemetry.addData ("17", "cServo Dir: " + continuousTest.getDirection());
+        telemetry.addData ("18", "cServo Pos: " + continuousTest.getPosition());
         telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
 
     }
