@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 public class WuOpmode extends OpMode{
 
     DcMotor backright, backleft, frontleft, frontright;
-    Servo wheelTest;
+    Servo wheelTest, continuosTest;
     int wheelPos;
     double future;
 
@@ -26,6 +26,8 @@ public class WuOpmode extends OpMode{
         frontleft = hardwareMap.dcMotor.get("back2");
         frontright = hardwareMap.dcMotor.get("front1");
         wheelTest = hardwareMap.servo.get("180a");
+        continuosTest = hardwareMap.servo.get("");
+
 
         wheelPos = 10;
         future = time;
@@ -47,9 +49,12 @@ public class WuOpmode extends OpMode{
         direction = (float)scaleInput(direction);
 
         wheelPos = turnXAxis(gamepad1.left_bumper, gamepad1.right_bumper, wheelPos);
-        //moveYAxis(gamepad1.left_trigger, gamepad1.right_trigger);
 
-        // write position values to the wrist and claw servo
+
+        if (gamepad1.a) {
+            continuosTest.setDirection(Servo.Direction.FORWARD);
+        }
+
         wheelTest.setPosition(scaleWheelPos(wheelPos));
         updateGamepadTelemetry();
 
