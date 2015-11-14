@@ -45,42 +45,13 @@ public class WuOpmode extends OpMode{
         // scale the joystick value to make it easier to control
         // the robot more precisely at slower speeds.
         direction = (float)scaleInput(direction);
-        //left =  (float)scaleInput(left);
-
-        // update the position of the arm.
-        /*
-        if(gamepad1.left_trigger != 0){
-            telemetry.addData("leftTrig", "leftTrig:  " + gamepad1.left_trigger);//String.format("%.2f", wheelPos));
-        }
-
-        if(gamepad1.right_trigger != 0){
-            telemetry.addData("rightTrig", "rightTrig:  " + gamepad1.right_trigger);//String.format("%.2f", wheelPos));
-
-        }*/
-        //increments from .2 straight to .5
-       // wheelPos = Range.clip(wheelPos, .2, .5);
 
         turnXAxis(gamepad1.left_bumper, gamepad1.right_bumper);
         //moveYAxis(gamepad1.left_trigger, gamepad1.right_trigger);
 
         // write position values to the wrist and claw servo
         wheelTest.setPosition(scaleWheelPos(wheelPos));
-
-
-        /*
-		 * Send telemetry data back to driver station. Note that if we are using
-		 * a legacy NXT-compatible motor controller, then the getPower() method
-		 * will return a null value. The legacy NXT-compatible motor controllers
-		 * are currently write only.
-		 */
-        /*
-        telemetry.addData("Text", "*** Robot Data***");
-        telemetry.addData("wheel", "wheel:  " + String.format("%.2f", wheelPos));
-        //telemetry.addData("time", "time:  " + String.format("%.2f", time));
-        //telemetry.addData("future", "future:  " + String.format("%.2f", future));
-        telemetry.addData("future", "RAF POWER:  " + String.format("%.2f", scaleWheelPos(wheelPos)));
-        */
-        update_gamepad_telemetry();
+        updateGamepadTelemetry();
 
     }
 
@@ -149,21 +120,17 @@ public class WuOpmode extends OpMode{
                 future = time + .1;
                 wheelPos++;
             }
-            /*if (wheelPos < 1) {
-                wheelPos += 0.1;
-            }*/
 
             if(wheelPos >= 21) {//lenght of the array, change if you cahnge the array
                 wheelPos = 20;
             }
-
         }
     }
-    public void update_gamepad_telemetry ()
+
+    private void updateGamepadTelemetry ()
     {
-        //
+
         // Send telemetry data concerning gamepads to the driver station.
-        //
         telemetry.addData ("01", "GP1 Left: " + -gamepad1.left_stick_x);
         telemetry.addData ("02", "GP1 Right: " + -gamepad1.right_stick_y);
         telemetry.addData ("03", "GP1 LT: " + gamepad1.left_trigger);
@@ -173,6 +140,6 @@ public class WuOpmode extends OpMode{
         telemetry.addData ("07", "GP1 X: " + gamepad1.x);
 
 
-    } // update_gamepad_telemetry
+    }
 }
 
