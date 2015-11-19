@@ -51,20 +51,23 @@ public class WuOpmode extends OpMode{
         wheelPos = turnXAxis(gamepad1.left_bumper, gamepad1.right_bumper, wheelPos);
 
 
-
+        /*
         if (gamepad1.a) {
-
+            //forward (counterclockwise)
             continuousTest.setPosition(0);
-            //continuousTest.set
         }
 
         if (gamepad1.b) {
+            //STOPS
             continuousTest.setPosition(1);
         }
 
         if (gamepad1.x) {
+            //backwards (clockwise)
             continuousTest.setPosition(.5);
-        }
+        }*/
+        continuousTest.setPosition(rotate());
+
         wheelTest.setPosition(scaleWheelPos(wheelPos));
         updateGamepadTelemetry();
 
@@ -142,6 +145,28 @@ public class WuOpmode extends OpMode{
             }*/
         }
         return pos;
+    }
+
+
+    //do we want to adjust the rotate??
+    private double rotate()
+    {
+        double r=.5;
+        if (gamepad1.a) {
+            //forward (counterclockwise)
+            r=0;
+        }
+
+        if (gamepad1.b) {
+            //backwards (clockwise?)
+            r=1;
+        }
+
+        if (gamepad1.x) {
+            //STOPS
+            r=.5;
+        }
+        return r;
     }
 
     private void updateGamepadTelemetry ()
