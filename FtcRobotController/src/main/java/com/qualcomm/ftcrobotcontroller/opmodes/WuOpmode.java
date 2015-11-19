@@ -28,10 +28,10 @@ public class WuOpmode extends OpMode{
         wheelTest = hardwareMap.servo.get("180a");
         continuousTest = hardwareMap.servo.get("360a");
 
-
         wheelPos = 10;
         future = time;
     }
+
     public void loop()
     {
 
@@ -50,25 +50,8 @@ public class WuOpmode extends OpMode{
 
         wheelPos = turnXAxis(gamepad1.left_bumper, gamepad1.right_bumper, wheelPos);
 
-
-        /*
-        if (gamepad1.a) {
-            //forward (counterclockwise)
-            continuousTest.setPosition(0);
-        }
-
-        if (gamepad1.b) {
-            //STOPS
-            continuousTest.setPosition(1);
-        }
-
-        if (gamepad1.x) {
-            //backwards (clockwise)
-            continuousTest.setPosition(.5);
-        }*/
-        continuousTest.setPosition(rotate());
-
         wheelTest.setPosition(scaleWheelPos(wheelPos));
+        continuousTest.setPosition(scaleContinuous(gamepad1.right_stick_x));
         updateGamepadTelemetry();
 
 
@@ -112,6 +95,7 @@ public class WuOpmode extends OpMode{
         // return scaled value.
         return dScale;
     }
+
     private double scaleWheelPos(int servoValue)
     {
         double[] values = {0.0, .05, .1 , .15, .2 , .25, .3 , .35, .4 , .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95, 1.0 };
@@ -147,26 +131,10 @@ public class WuOpmode extends OpMode{
         return pos;
     }
 
+    private double scaleContinuous (float right_stick_x) {
 
-    //do we want to adjust the rotate??
-    private double rotate()
-    {
-        double r=.5;
-        if (gamepad1.a) {
-            //forward (counterclockwise)
-            r=0;
-        }
+        return (right_stick_x / 2) + .5;
 
-        if (gamepad1.b) {
-            //backwards (clockwise?)
-            r=1;
-        }
-
-        if (gamepad1.x) {
-            //STOPS
-            r=.5;
-        }
-        return r;
     }
 
     private void updateGamepadTelemetry ()
