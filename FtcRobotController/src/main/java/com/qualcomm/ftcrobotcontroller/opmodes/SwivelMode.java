@@ -4,20 +4,24 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
  * Created by Girls Who Code on 11/21/2015.
  */
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
-
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import com.qualcomm.robotcore.util.Range;
-
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.TouchSensorMultiplexer;
 
 public class SwivelMode extends OpMode {
 
     Servo swivLeft, swivRight;
     Servo arm;
     double futureSwiv,leftSwivPos, rightSwivPos;
+    TouchSensor sensorTouch;
+    OpticalDistanceSensor OpticalDistSensor;
+
 
 
     public SwivelMode() {
@@ -29,20 +33,28 @@ public class SwivelMode extends OpMode {
     public void init() {
 
         swivLeft= hardwareMap.servo.get("sLeft");
-
         swivRight=hardwareMap.servo.get("sRight");
-
         arm=hardwareMap.servo.get("arm360");
-
         futureSwiv = time;
-
         leftSwivPos=0.5;
-
         rightSwivPos=0.5;
 
+        try
+        {
+            sensorTouch = hardwareMap.touchSensor.get("tSens");
+
+            //sensorTouch = hardwareMap.touchSensorMultiplexer.get("tSens");
+        }
+        catch (Exception p_exeception)
+        {
+            //m_warning_message ("sensor_touch");
+            //DbgLog.msg(p_exeception.getLocalizedMessage());
+
+            sensorTouch = null;
+        }
+
+        OpticalDistSensor = hardwareMap.opticalDistanceSensor.get ("c3");
     }
-
-
     public void loop() {
 
         resetServos();
@@ -75,38 +87,35 @@ public class SwivelMode extends OpMode {
 
 
         // Send telemetry data concerning gamepads to the driver station.
-
         telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
-
         telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
-
         telemetry.addData ("03", "GP1 RightHor: " + gamepad1.right_stick_x);
-
         telemetry.addData ("04", "GP1 RightVert: " + -gamepad1.right_stick_y);
 
         telemetry.addData ("05", "GP1 B: " + gamepad1.b);
-
         telemetry.addData ("06", "GP1 A: " + gamepad1.a);
-
         telemetry.addData ("07", "GP1 X: " + gamepad1.x);
-
         telemetry.addData ("08", "GP1 A: " + gamepad1.y);
 
         telemetry.addData ("09", "GP1 bDPADL: " + gamepad1.dpad_left);
-
         telemetry.addData ("10", "GP1 bDPADR: " + gamepad1.dpad_right);
-
         telemetry.addData ("11", "GP1 bDPADUP: " + gamepad1.dpad_up);
-
         telemetry.addData ("12", "GP1 bDPADDOWN: " + gamepad1.dpad_down);
 
         telemetry.addData ("13", "GP1 LEFTB: " + gamepad1.left_stick_button);
-
         telemetry.addData ("14", "GP1 RIGHTB: " + gamepad1.right_stick_button);
-
         telemetry.addData ("15", "GP1 RTRIG: " + gamepad1.left_trigger);
-
         telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
+
+        if(sensorTouch!=null)
+        {
+            telemetry.addData ("17", "touchSensor: " + sensorTouch.isPressed());
+            telemetry.addData ("18", "touchSensorV: " + sensorTouch.getValue());
+
+        }
+        telemetry.addData ("19", "touchSensor: " + sensorTouch);
+        telemetry.addData ("20", "OpticalDistanceSensor: " + OpticalDistSensor.getLightDetected());
+
 
         //telemetry.addData ("17", "cServo Dir: " + continuousTest.getDirection());
 
