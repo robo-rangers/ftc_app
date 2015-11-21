@@ -64,6 +64,7 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register ("SagarMode",SagarMode.class);
     manager.register("SURIEL MODE!!", SurielTeleOp.class);
     manager.register("AliceMode",WuOpmode.class);
+    manager.register("SwivelMode",SwivelMode.class);
 
 
     /*

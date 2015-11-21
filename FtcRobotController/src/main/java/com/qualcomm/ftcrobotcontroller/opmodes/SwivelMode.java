@@ -14,9 +14,10 @@ import com.qualcomm.robotcore.util.Range;
 
 
 public class SwivelMode extends OpMode {
-    Servo swivLeft, swivRight;
 
-    double future,leftSwivPos, rightSwivPos;
+    Servo swivLeft, swivRight;
+    Servo arm;
+    double futureSwiv,leftSwivPos, rightSwivPos;
 
 
     public SwivelMode() {
@@ -27,12 +28,13 @@ public class SwivelMode extends OpMode {
 
     public void init() {
 
-        swivLeft= hardwareMap.servo.get("pLeft");
+        swivLeft= hardwareMap.servo.get("sLeft");
 
-        swivRight=hardwareMap.servo.get("pRight");
+        swivRight=hardwareMap.servo.get("sRight");
 
+        arm=hardwareMap.servo.get("arm360");
 
-        future = time;
+        futureSwiv = time;
 
         leftSwivPos=0.5;
 
@@ -43,7 +45,10 @@ public class SwivelMode extends OpMode {
 
     public void loop() {
 
+        resetServos();
+
         moveSwiv();
+
 
         swivLeft.setPosition(leftSwivPos);
 
@@ -51,6 +56,11 @@ public class SwivelMode extends OpMode {
 
         updateGamepadTelemetry();
 
+        float direction = gamepad1.right_stick_y;
+
+        direction = Range.clip(direction, -1, 1);
+
+        arm.setPosition(scaleContinuous(-gamepad1.right_stick_y));
     }
 
 
@@ -107,42 +117,64 @@ public class SwivelMode extends OpMode {
 
     }
 
-    public void moveSwiv()
+    private double scaleContinuous (float value) {
 
+        return ((value / 2) + .5);
+
+    }
+
+    public void moveSwiv()
     {
 
-        if(gamepad1.b)
+        if(gamepad1.left_bumper)
 
         {
 
-            if(future < time) {
+            if(futureSwiv < time) {
 
-                future = time + .1;
+                futureSwiv = time + .1;
 
                 leftSwivPos += 0.1;
 
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+
                 rightSwivPos = 1 - leftSwivPos;
 
             }
 
         }
 
-        if(gamepad1.x)
-
+        if(gamepad1.right_bumper)
         {
 
-            if(future < time) {
+            if(futureSwiv < time) {
 
-                future = time + .1;
+                futureSwiv = time + .1;
 
                 leftSwivPos -= 0.1;
 
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+
                 rightSwivPos = 1 - leftSwivPos;
 
             }
 
         }
 
+
+
+    }
+
+    public void resetServos()
+    {
+        if(gamepad1.start)
+        {
+            leftSwivPos=0.5;
+
+            rightSwivPos=0.5;
+
+
+        }
     }
 
 

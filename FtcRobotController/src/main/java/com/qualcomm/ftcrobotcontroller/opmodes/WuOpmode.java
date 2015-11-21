@@ -124,7 +124,7 @@ public class WuOpmode extends OpMode{
                 pos++;
             }
 
-            /*if(wheelPos >= 21) {//lenght of the array, change if you cahnge the array
+            /*if(wheelPos >= 21) {//lenght of the array, change if you change the array
                 wheelPos = 20;
             }*/
         }
