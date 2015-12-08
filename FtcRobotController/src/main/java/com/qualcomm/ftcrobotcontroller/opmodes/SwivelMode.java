@@ -114,8 +114,8 @@ public class SwivelMode extends OpMode {
 
         }
         telemetry.addData ("19", "touchSensor: " + sensorTouch);
-        telemetry.addData ("20", "OpticalDistanceSensor: " + OpticalDistSensor.getLightDetected());
-
+        telemetry.addData ("20", "opDS Light Detected: " + String.format("%.4f",OpticalDistSensor.getLightDetected()));
+        telemetry.addData ("21", "opDS Light Detected Raw: " + OpticalDistSensor.getLightDetectedRaw());
 
         //telemetry.addData ("17", "cServo Dir: " + continuousTest.getDirection());
 
