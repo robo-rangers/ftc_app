@@ -22,56 +22,77 @@ public class SwivelMode extends OpMode {
     TouchSensor sensorTouch;
     OpticalDistanceSensor OpticalDistSensor;
 
-
-
     public SwivelMode() {
-
 
     }
 
-
     public void init() {
 
-        swivLeft= hardwareMap.servo.get("sLeft");
-        swivRight=hardwareMap.servo.get("sRight");
-        arm=hardwareMap.servo.get("arm360");
         futureSwiv = time;
         leftSwivPos=0.5;
         rightSwivPos=0.5;
 
+        //Left swivel servo
+        try
+        {
+            swivLeft = hardwareMap.servo.get("sLeft");
+        }
+        catch (Exception p_exception)
+        {
+            swivLeft = null;
+        }
+
+        //Right swivel servo
+        try
+        {
+            swivRight=hardwareMap.servo.get("sRight");
+        }
+        catch (Exception p_exception)
+        {
+            swivRight = null;
+        }
+
+        //Arm Servo
+        try
+        {
+            arm=hardwareMap.servo.get("arm360");
+        }
+        catch (Exception p_exception)
+        {
+            arm=null;
+        }
+
+        //Touch Sensor
         try
         {
             sensorTouch = hardwareMap.touchSensor.get("tSens");
-
-            //sensorTouch = hardwareMap.touchSensorMultiplexer.get("tSens");
         }
         catch (Exception p_exeception)
         {
-            //m_warning_message ("sensor_touch");
-            //DbgLog.msg(p_exeception.getLocalizedMessage());
-
             sensorTouch = null;
         }
 
-        OpticalDistSensor = hardwareMap.opticalDistanceSensor.get ("c3");
+        //Optical Distance Sensor
+        try
+        {
+            OpticalDistSensor = hardwareMap.opticalDistanceSensor.get ("c3");
+        }
+        catch (Exception p_exception)
+        {
+            OpticalDistSensor = null;
+        }
+
     }
-    public void loop() {
-
+    public void loop()
+    {
         resetServos();
-
         moveSwiv();
 
-
         swivLeft.setPosition(leftSwivPos);
-
         swivRight.setPosition((rightSwivPos));
-
         updateGamepadTelemetry();
-
         float direction = gamepad1.right_stick_y;
-
         direction = Range.clip(direction, -1, 1);
-
         arm.setPosition(scaleContinuous(-gamepad1.right_stick_y));
     }
 
@@ -84,8 +105,6 @@ public class SwivelMode extends OpMode {
     private void updateGamepadTelemetry ()
 
     {
-
-
         // Send telemetry data concerning gamepads to the driver station.
         telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
         telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
@@ -111,67 +130,43 @@ public class SwivelMode extends OpMode {
         {
             telemetry.addData ("17", "touchSensor: " + sensorTouch.isPressed());
             telemetry.addData ("18", "touchSensorV: " + sensorTouch.getValue());
-
         }
         telemetry.addData ("19", "touchSensor: " + sensorTouch);
         telemetry.addData ("20", "OpticalDistanceSensor: " + OpticalDistSensor.getLightDetected());
 
-
         //telemetry.addData ("17", "cServo Dir: " + continuousTest.getDirection());
-
         //telemetry.addData ("18", "cServo Pos: " + continuousTest.getPosition());
-
         //telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
-
-
     }
 
-    private double scaleContinuous (float value) {
-
+    private double scaleContinuous (float value)
+    {
         return ((value / 2) + .5);
-
     }
 
     public void moveSwiv()
     {
-
         if(gamepad1.left_bumper)
-
         {
-
-            if(futureSwiv < time) {
-
+            if(futureSwiv < time)
+            {
                 futureSwiv = time + .1;
-
                 leftSwivPos += 0.1;
-
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-
                 rightSwivPos = 1 - leftSwivPos;
-
             }
-
         }
 
         if(gamepad1.right_bumper)
         {
-
-            if(futureSwiv < time) {
-
+            if(futureSwiv < time)
+            {
                 futureSwiv = time + .1;
-
                 leftSwivPos -= 0.1;
-
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-
                 rightSwivPos = 1 - leftSwivPos;
-
             }
-
         }
-
-
-
     }
 
     public void resetServos()
@@ -179,13 +174,7 @@ public class SwivelMode extends OpMode {
         if(gamepad1.start)
         {
             leftSwivPos=0.5;
-
             rightSwivPos=0.5;
-
-
         }
     }
-
-
-
 }
