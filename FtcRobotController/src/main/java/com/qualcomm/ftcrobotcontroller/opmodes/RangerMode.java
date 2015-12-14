@@ -21,15 +21,13 @@ public class RangerMode extends OpMode {
     int wheelPos;
     double future;
 
-
-
-    public RangerMode() {
+    public RangerMode()
+    {
 
     }
 
-
-    public void init() {
-
+    public void init()
+    {
         swivLeft = hardwareMap.servo.get("sLeft");
         swivRight = hardwareMap.servo.get("sRight");
         arm = hardwareMap.servo.get("arm180");
@@ -37,20 +35,19 @@ public class RangerMode extends OpMode {
         leftSwivPos = 0.5;
         rightSwivPos = 0.5;
         //wheel stuff
+        //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         backleft = hardwareMap.dcMotor.get("back2");
         backright = hardwareMap.dcMotor.get("back1");
         frontleft = hardwareMap.dcMotor.get("front2");
         frontright = hardwareMap.dcMotor.get("front1");
         platform = hardwareMap.servo.get("360a");
 
-        wheelPos = 10;
+        wheelPos = 0;
         future = time;
-
-
     }
 
-    public void loop() {
-
+    public void loop()
+    {
         //resets all servos by pressing start
         resetServos();
 
@@ -76,15 +73,16 @@ public class RangerMode extends OpMode {
     }
 
 
-    public void stop() {
-
+    public void stop()
+    {
 
     }
 
     // THIS WAS CALLED ON WHEEL TEST (180 SERVO)
-    double scaleInput(double dVal)  {
+    public double scaleInput(double dVal)
+    {
         double[] scaleArray = { 0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
-                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00 };
+                0.30, 0.36, 0.40, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00 };
 
         // get the corresponding index for the scaleInput array.
         int index = (int) (dVal * 16.0);
@@ -126,28 +124,29 @@ public class RangerMode extends OpMode {
                 future = time + .1;
                 pos--;
 
-                if(wheelPos <= -1)
-                    wheelPos = 0;
+                if(pos <= -1)
+                    pos = 0;
             }
         }
 
-        if (right) {
-            if(future < time) {
+        if (right)
+        {
+            if(future < time)
+            {
                 future = time + .1;
                 pos++;
 
-                    if(wheelPos >= 21) //lenght of the array, change if you change the array
-                        wheelPos = 20;
+                    if(pos >= 21) //lenght of the array, change if you change the array
+                        pos = 20;
             }
         }
         return pos;
     }
 
 
-    private double scaleContinuousWheel (float right_stick_x) {
-
+    private double scaleContinuousWheel (float right_stick_x)
+    {
         return (right_stick_x / 2) + .5;
-
     }
 
 
@@ -185,73 +184,63 @@ public class RangerMode extends OpMode {
         //telemetry.addData ("18", "cServo Pos: " + continuousTest.getPosition());
 
         telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
-
-
     }
 
-    private double scaleContinuousServo(float value) {
-
+    private double scaleContinuousServo(float value)
+    {
         return ((value / 2) + .5);
-
     }
 
-    public void moveSwiv() {
-
+    public void moveSwiv()
+    {
         if (gamepad1.left_bumper)
         {
-
-            if (futureSwiv < time) {
-
+            if (futureSwiv < time)
+            {
                 futureSwiv = time + .1;
-
                 leftSwivPos += 0.1;
-
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-
                 rightSwivPos = 1 - leftSwivPos;
-
             }
-
         }
 
-        if (gamepad1.right_bumper) {
-
-            if (futureSwiv < time) {
-
+        if (gamepad1.right_bumper)
+        {
+            if (futureSwiv < time)
+            {
                 futureSwiv = time + .1;
-
                 leftSwivPos -= 0.1;
-
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-
                 rightSwivPos = 1 - leftSwivPos;
-
             }
-
         }
-
-
     }
 
-    public void resetServos() {
-        if (gamepad1.start) {
-
+    public void resetServos()
+    {
+        if (gamepad1.start)
+        {
             leftSwivPos = 0.5;
 
             rightSwivPos = 0.5;
-
         }
     }
 
-    public void driveBot(){
-        float throttle = -gamepad1.left_stick_y;
-        float direction = gamepad1.left_stick_x;
-        float right = throttle - direction;
-        float left = throttle + direction;
+    public void driveBot()
+    {
+
+        float x = gamepad1.left_stick_x;
+        float y = -gamepad1.left_stick_y;
+
+        //negate both to change which way is forward
+        float left = (x+y);
+        float right = (x-y);
 
         right = Range.clip(right, -1, 1);
         left = Range.clip(left, -1, 1);
 
+        right = (float)scaleInput(right);
+        left =  (float)scaleInput(left);
 
         frontright.setPower(right);
         backright.setPower(right);
