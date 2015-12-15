@@ -8,42 +8,39 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Sagar on 12/8/2015.
  */
-public class RangerMode extends OpMode {
+public class RangerMode2 extends OpMode {
 
 
-    Servo swivLeft, swivRight;
-    Servo arm;
-    double futureSwiv, leftSwivPos, rightSwivPos;
+
+    double futureSwiv;
 
     //wheel stuff
-    DcMotor backright, backleft, frontleft, frontright;
-    Servo platform ,wheelTest;
+    DcMotor backright, backleft, newSwivel;
+
     int wheelPos;
     double future;
+
+
 
     //platform warning
     int warning;
 
-    public RangerMode()
+    public RangerMode2()
     {
 
     }
 
     public void init()
     {
-        swivLeft = hardwareMap.servo.get("sLeft");
-        swivRight = hardwareMap.servo.get("sRight");
-        arm = hardwareMap.servo.get("arm180");
+
         futureSwiv = time;
-        leftSwivPos = 0.5;
-        rightSwivPos = 0.5;
+
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         backleft = hardwareMap.dcMotor.get("back2");
         backright = hardwareMap.dcMotor.get("back1");
-        frontleft = hardwareMap.dcMotor.get("front2");
-        frontright = hardwareMap.dcMotor.get("front1");
-        platform = hardwareMap.servo.get("360a");
+        newSwivel =hardwareMap.dcMotor.get("swivel");
+
 
         wheelPos = 0;
         future = time;
@@ -53,24 +50,21 @@ public class RangerMode extends OpMode {
     public void loop()
     {
         //resets all servos by pressing start
-        resetServos();
+
 
         //Handles the swivel
-        moveSwiv();
-        swivLeft.setPosition(leftSwivPos);
-        swivRight.setPosition((rightSwivPos));
+
+
 
         //Handles the extending of the arm
-        if(gamepad1.right_stick_y>0) //DOWN
-            wheelPos = pos180Servo(true, false, wheelPos);
-        else if(gamepad1.right_stick_y<0) //UP
-            wheelPos = pos180Servo(false, true, wheelPos);
-        arm.setPosition(scaleWheelPos(wheelPos));
+
 
         //HANDLES PLATFORM
-        platform.setPosition(scaleContinuousWheel(gamepad1.right_stick_x));
+
 
         driveBot();
+
+        moveDCSwivel();
 
         updateGamepadTelemetry();
 
@@ -113,52 +107,13 @@ public class RangerMode extends OpMode {
         return dScale;
     }
 
-    private double scaleWheelPos(int servoValue)
-    {
-        double[] values = {0.0, .05, .1 , .15, .2 , .25, .3 , .35, .4 , .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95, 1.0 };
-        int val = servoValue % values.length;
-        return values[val];
-    }
 
 
-    private int pos180Servo (boolean left, boolean right, int pos) {
-
-        if (left) {
-            if (future < time) {
-                future = time + .1;
-                pos--;
-
-                if(pos <= -1)
-                    pos = 0;
-            }
-        }
-
-        if (right)
-        {
-            if(future < time)
-            {
-                future = time + .1;
-                pos++;
-
-                    if(pos >= 21) //lenght of the array, change if you change the array
-                        pos = 20;
-            }
-        }
-        return pos;
-    }
 
 
-    private double scaleContinuousWheel (float right_stick_x)
-    {
-        if(right_stick_x>0)
-            warning++;
-        else if(right_stick_x<0)
-            warning--;
-
-        return (right_stick_x / 2) + .5;
 
 
-    }
+
 
     private void warningMessage()
     {
@@ -201,12 +156,12 @@ public class RangerMode extends OpMode {
         telemetry.addData ("15", "GP1 RTRIG: " + gamepad1.left_trigger);
         telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
 
-        telemetry.addData ("17", "ARM POS: " + arm.getPosition());
+
 
         telemetry.addData ("18", "Back Right: " + backright.getPower());
-        telemetry.addData ("19", "Front Right: " + frontright.getPower());
+
         telemetry.addData ("20", "Back Left: " + backleft.getPower());
-        telemetry.addData ("21", "Front Left: " + frontleft.getPower());
+
         // telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
 
         // Send telemetry data concerning gamepads to the driver station.
@@ -224,45 +179,8 @@ public class RangerMode extends OpMode {
 
     }
 
-    private double scaleContinuousServo(float value)
-    {
-        return ((value / 2) + .5);
-    }
 
-    public void moveSwiv()
-    {
-        if (gamepad1.left_bumper)
-        {
-            if (futureSwiv < time)
-            {
-                futureSwiv = time + .1;
-                leftSwivPos += 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
 
-        if (gamepad1.right_bumper)
-        {
-            if (futureSwiv < time)
-            {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-    }
-
-    public void resetServos()
-    {
-        if (gamepad1.start)
-        {
-            leftSwivPos = 0.5;
-
-            rightSwivPos = 0.5;
-        }
-    }
 
     public void driveBot()
     {
@@ -280,10 +198,26 @@ public class RangerMode extends OpMode {
         right = (float)scaleInput(right);
         left =  (float)scaleInput(left);
 
-        frontright.setPower(right);
+
         backright.setPower(right);
-        frontleft.setPower(left);
+
         backleft.setPower(left);
+    }
+
+    public void moveDCSwivel()
+    {
+        if (gamepad1.left_bumper)
+        {
+            newSwivel.setPower(-.15);
+        }
+        else if (gamepad1.right_bumper)
+        {
+            newSwivel.setPower(.25);
+        }
+        else
+        {
+            newSwivel.setPower(0);
+        }
     }
 }
 

@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Sagar on 12/8/2015.
  */
-public class RangerMode extends OpMode {
+public class AutonomousMode extends OpMode {
 
 
     Servo swivLeft, swivRight;
@@ -24,7 +24,7 @@ public class RangerMode extends OpMode {
     //platform warning
     int warning;
 
-    public RangerMode()
+    public AutonomousMode()
     {
 
     }
@@ -52,28 +52,24 @@ public class RangerMode extends OpMode {
 
     public void loop()
     {
-        //resets all servos by pressing start
-        resetServos();
-
-        //Handles the swivel
-        moveSwiv();
-        swivLeft.setPosition(leftSwivPos);
-        swivRight.setPosition((rightSwivPos));
-
-        //Handles the extending of the arm
-        if(gamepad1.right_stick_y>0) //DOWN
-            wheelPos = pos180Servo(true, false, wheelPos);
-        else if(gamepad1.right_stick_y<0) //UP
-            wheelPos = pos180Servo(false, true, wheelPos);
-        arm.setPosition(scaleWheelPos(wheelPos));
-
-        //HANDLES PLATFORM
-        platform.setPosition(scaleContinuousWheel(gamepad1.right_stick_x));
-
-        driveBot();
-
-        updateGamepadTelemetry();
-
+        if(time>=27)
+            stop();
+        else{
+            if(time<=4) {
+                //FORWARD
+                driveAutoBot(0, 1);
+            }
+            else if(time>4&&time<=6)
+            {
+                //LEFT
+                driveAutoBot(-1,0);
+            }
+            else if(time>6&&time<=8)
+            {
+                //PLATFORM MOVEMENT
+                platform.setPosition(scaleContinuousWheel((float)0.5));
+            }
+        }
     }
 
 
@@ -140,8 +136,8 @@ public class RangerMode extends OpMode {
                 future = time + .1;
                 pos++;
 
-                    if(pos >= 21) //lenght of the array, change if you change the array
-                        pos = 20;
+                if(pos >= 21) //lenght of the array, change if you change the array
+                    pos = 20;
             }
         }
         return pos;
@@ -269,6 +265,27 @@ public class RangerMode extends OpMode {
 
         float x = gamepad1.left_stick_x;
         float y = -gamepad1.left_stick_y;
+
+        //negate both to change which way is forward
+        float left = -(x+y);
+        float right = -(x-y);
+
+        right = Range.clip(right, -1, 1);
+        left = Range.clip(left, -1, 1);
+
+        right = (float)scaleInput(right);
+        left =  (float)scaleInput(left);
+
+        frontright.setPower(right);
+        backright.setPower(right);
+        frontleft.setPower(left);
+        backleft.setPower(left);
+    }
+    public void driveAutoBot(float xa, float ya)
+    {
+
+        float x = xa;
+        float y = -ya;
 
         //negate both to change which way is forward
         float left = -(x+y);
