@@ -141,6 +141,7 @@ public class WuOpmode extends OpMode{
     {
 
         // Send telemetry data concerning gamepads to the driver station.
+
         telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
         telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
         telemetry.addData ("03", "GP1 RightHor: " + gamepad1.right_stick_x);

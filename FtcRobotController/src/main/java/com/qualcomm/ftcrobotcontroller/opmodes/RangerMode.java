@@ -153,6 +153,7 @@ public class RangerMode extends OpMode {
     private void updateGamepadTelemetry()
     {
 
+        telemetry.addData ("00", "ver: 12/14 3:41");
         telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
         telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
         telemetry.addData ("03", "GP1 RightHor: " + gamepad1.right_stick_x);
@@ -175,6 +176,10 @@ public class RangerMode extends OpMode {
 
         telemetry.addData ("17", "ARM POS: " + arm.getPosition());
 
+        telemetry.addData ("18", "Back Right: " + backright.getPower());
+        telemetry.addData ("19", "Front Right: " + frontright.getPower());
+        telemetry.addData ("20", "Back Left: " + backleft.getPower());
+        telemetry.addData ("21", "Front Left: " + frontleft.getPower());
         // telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
 
         // Send telemetry data concerning gamepads to the driver station.
@@ -233,8 +238,8 @@ public class RangerMode extends OpMode {
         float y = -gamepad1.left_stick_y;
 
         //negate both to change which way is forward
-        float left = (x+y);
-        float right = (x-y);
+        float left = -(x+y);
+        float right = -(x-y);
 
         right = Range.clip(right, -1, 1);
         left = Range.clip(left, -1, 1);
