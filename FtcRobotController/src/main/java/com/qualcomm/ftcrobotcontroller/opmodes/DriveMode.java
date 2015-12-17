@@ -8,115 +8,34 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Sagar on 12/8/2015.
  */
-public class RangerMode extends OpMode {
+public class DriveMode extends OpMode {
 
-    //180 servos
-    Servo swivLeft, swivRight;
-    Servo elevator;
-    double futureSwiv, leftSwivPos, rightSwivPos;
+//this mode was created to test the 6 wheel drive
+
 
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
-    Servo platform ,wheelTest;
+
     int wheelPos;
     double future;
 
-    //platform warning, how many turns before the wires catch
+    //platform warning
     int warning;
 
-    public RangerMode()
+    public DriveMode()
     {
 
     }
 
     public void init()
     {
-        //servo stuff
 
-        try
-        {
-            swivLeft = hardwareMap.servo.get("sLeft");
-        }
-        catch (Exception p_exception)
-        {
-            swivLeft = null;
-        }
-
-
-
-
-        try
-        {
-            swivRight = hardwareMap.servo.get("sRight");
-        }
-        catch (Exception p_exception)
-        {
-            swivRight = null;
-        }
-
-
-        try
-        {
-            elevator = hardwareMap.servo.get("elevator");
-        }
-        catch (Exception p_exception)
-        {
-            elevator = null;
-        }
-
-
-        futureSwiv = time;
-        leftSwivPos = 0.5;
-        rightSwivPos = 0.5;
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
-        try
-        {
-            backleft = hardwareMap.dcMotor.get("back2");
-        }
-        catch (Exception p_exception)
-        {
-            backleft = null;
-        }
-
-        try
-        {
-            backright= hardwareMap.dcMotor.get("back1");
-        }
-        catch (Exception p_exception)
-        {
-            backright = null;
-
-        }
-
-        try
-        {
-            frontleft = hardwareMap.dcMotor.get("front2");
-        }
-        catch (Exception p_exception)
-        {
-            backright = null;
-        }
-
-
-        try
-        {
-            frontright = hardwareMap.dcMotor.get("front1");
-        }
-        catch (Exception p_exception)
-        {
-            frontright = null;
-        }
-
-        try
-        {
-            platform = hardwareMap.servo.get("360a");
-        }
-        catch (Exception p_exception)
-        {
-            platform = null;
-        }
-
+        backleft = hardwareMap.dcMotor.get("back2");
+        backright = hardwareMap.dcMotor.get("back1");
+        frontleft = hardwareMap.dcMotor.get("front2");
+        frontright = hardwareMap.dcMotor.get("front1");
 
 
         wheelPos = 0;
@@ -126,19 +45,7 @@ public class RangerMode extends OpMode {
 
     public void loop()
     {
-        //resets all servos by pressing start
-        resetServos();
 
-        //Handles the swivel
-        moveSwiv();
-        swivLeft.setPosition(leftSwivPos);
-        swivRight.setPosition((rightSwivPos));
-
-        elevator.setPosition(scaleContinuousWheel2(gamepad1.right_stick_y));
-
-
-        //HANDLES PLATFORM
-        platform.setPosition(scaleContinuousWheel(gamepad1.right_stick_x));
 
         driveBot();
 
@@ -183,59 +90,16 @@ public class RangerMode extends OpMode {
         return dScale;
     }
 
-    private double scaleWheelPos(int servoValue)
-    {
-        double[] values = {0.0, .05, .1 , .15, .2 , .25, .3 , .35, .4 , .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95, 1.0 };
-        int val = servoValue % values.length;
-        return values[val];
-    }
 
 
-    private int pos180Servo (boolean left, boolean right, int pos) {
-
-        if (left) {
-            if (future < time) {
-                future = time + .1;
-                pos--;
-
-                if(pos <= -1)
-                    pos = 0;
-            }
-        }
-
-        if (right)
-        {
-            if(future < time)
-            {
-                future = time + .1;
-                pos++;
-
-                    if(pos >= 21) //lenght of the array, change if you change the array
-                        pos = 20;
-            }
-        }
-        return pos;
-    }
-
-    //this is used for the arm(elevator), its different because we dont need a warning for this
-    private double scaleContinuousWheel2(float right_stick_y)
-    {
-        return (right_stick_y / 2) + .5;    
-    }
 
 
-    //this is used for the platfrom
-    private double scaleContinuousWheel (float right_stick_x)
-    {
-        if(right_stick_x>0)
-            warning++;
-        else if(right_stick_x<0)
-            warning--;
-
-        return (right_stick_x / 2) + .5;
 
 
-    }
+
+
+
+
 
     private void warningMessage()
     {
@@ -278,7 +142,7 @@ public class RangerMode extends OpMode {
         telemetry.addData ("15", "GP1 RTRIG: " + gamepad1.left_trigger);
         telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
 
-        telemetry.addData ("17", "ARM POS: " + elevator.getPosition());
+
 
         telemetry.addData ("18", "Back Right: " + backright.getPower());
         telemetry.addData ("19", "Front Right: " + frontright.getPower());
@@ -301,45 +165,11 @@ public class RangerMode extends OpMode {
 
     }
 
-    private double scaleContinuousServo(float value)
-    {
-        return ((value / 2) + .5);
-    }
 
-    public void moveSwiv()
-    {
-        if (gamepad1.left_bumper)
-        {
-            if (futureSwiv < time)
-            {
-                futureSwiv = time + .1;
-                leftSwivPos += 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
 
-        if (gamepad1.right_bumper)
-        {
-            if (futureSwiv < time)
-            {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-    }
 
-    public void resetServos()
-    {
-        if (gamepad1.start)
-        {
-            leftSwivPos = 0.5;
 
-            rightSwivPos = 0.5;
-        }
-    }
+
 
     public void driveBot()
     {
@@ -363,4 +193,3 @@ public class RangerMode extends OpMode {
         backleft.setPower(left);
     }
 }
-

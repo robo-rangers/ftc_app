@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class RangerMode2 extends OpMode {
 
-
-
     double futureSwiv;
 
     //wheel stuff

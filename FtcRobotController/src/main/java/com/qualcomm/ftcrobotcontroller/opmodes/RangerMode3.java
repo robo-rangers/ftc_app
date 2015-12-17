@@ -10,13 +10,15 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class RangerMode3 extends OpMode {
 
-
+//we created this mode to test a new platfrom that we created
     Servo swivLeft, swivRight;
+    //360 servo
+    Servo elevator;
 
     double futureSwiv, leftSwivPos, rightSwivPos;
 
     //wheel stuff
-    DcMotor backright, backleft;
+    DcMotor backright, backleft,frontleft, frontright;
 
     int wheelPos;
     double future;
@@ -33,6 +35,7 @@ public class RangerMode3 extends OpMode {
     {
         swivLeft = hardwareMap.servo.get("sLeft");
         swivRight = hardwareMap.servo.get("sRight");
+        elevator = hardwareMap.servo.get("elevator");
 
         futureSwiv = time;
         leftSwivPos = 0.5;
@@ -41,6 +44,8 @@ public class RangerMode3 extends OpMode {
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         backleft = hardwareMap.dcMotor.get("back2");
         backright = hardwareMap.dcMotor.get("back1");
+        frontleft = hardwareMap.dcMotor.get("front2");
+        frontright = hardwareMap.dcMotor.get("front1");
 
 
         wheelPos = 0;
@@ -66,6 +71,8 @@ public class RangerMode3 extends OpMode {
 
 
         //HANDLES PLATFORM
+
+        elevator.setPosition(scaleContinuousWheel(gamepad1.right_stick_x));
 
 
         driveBot();
@@ -138,6 +145,18 @@ public class RangerMode3 extends OpMode {
             }
         }
         return pos;
+    }
+
+    private double scaleContinuousWheel (float right_stick_x)
+    {
+        if(right_stick_x>0)
+            warning++;
+        else if(right_stick_x<0)
+            warning--;
+
+        return (right_stick_x / 2) + .5;
+
+
     }
 
 
@@ -261,8 +280,9 @@ public class RangerMode3 extends OpMode {
         left =  (float)scaleInput(left);
 
 
+        frontright.setPower(right);
         backright.setPower(right);
-
+        frontleft.setPower(left);
         backleft.setPower(left);
     }
 }
