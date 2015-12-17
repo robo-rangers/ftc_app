@@ -220,7 +220,7 @@ public class RangerMode extends OpMode {
     //this is used for the arm(elevator), its different because we dont need a warning for this
     private double scaleContinuousWheel2(float right_stick_y)
     {
-        return (right_stick_y / 2) + .5;    
+        return (right_stick_y / 2) + .5;
     }
 
 
