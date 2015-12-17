@@ -136,7 +136,7 @@ public class RangerMode extends OpMode {
         swivLeft.setPosition(leftSwivPos);
         swivRight.setPosition((rightSwivPos));
 
-        elevator.setPosition(scaleContinuousWheel2(gamepad1.right_stick_y));
+        elevator.setPosition(scaleContinuousWheel2(-gamepad1.right_stick_y));
 
 
         //HANDLES PLATFORM
@@ -327,7 +327,7 @@ public class RangerMode extends OpMode {
         if (gamepad1.dpad_up) {
             if (futureSwiv < time) {
                 futureSwiv = time + .1;
-                leftSwivPos += 0.1;
+                leftSwivPos += 0.05;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
                 rightSwivPos = 1 - leftSwivPos;
             }
@@ -337,7 +337,7 @@ public class RangerMode extends OpMode {
         if (gamepad1.dpad_down) {
             if (futureSwiv < time) {
                 futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
+                leftSwivPos -= 0.05;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
                 rightSwivPos = 1 - leftSwivPos;
             }
