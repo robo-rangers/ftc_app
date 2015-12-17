@@ -140,7 +140,7 @@ public class RangerMode extends OpMode {
 
 
         //HANDLES PLATFORM
-        platform.setPosition(scaleContinuousWheel(gamepad1.right_stick_x));
+        platform.setPosition(scaleContinuousWheel(-gamepad1.right_stick_x));
 
         driveBot();
 
