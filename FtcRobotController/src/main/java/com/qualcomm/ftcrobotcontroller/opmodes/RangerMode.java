@@ -131,6 +131,8 @@ public class RangerMode extends OpMode {
 
         //Handles the swivel
         moveSwiv();
+        setSwivel();
+
         swivLeft.setPosition(leftSwivPos);
         swivRight.setPosition((rightSwivPos));
 
@@ -258,6 +260,7 @@ public class RangerMode extends OpMode {
         telemetry.addData( "Warning", "WARNING" + warning);
         warningMessage();
 
+        /*
         telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
         telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
         telemetry.addData ("03", "GP1 RightHor: " + gamepad1.right_stick_x);
@@ -284,6 +287,7 @@ public class RangerMode extends OpMode {
         telemetry.addData ("19", "Front Right: " + frontright.getPower());
         telemetry.addData ("20", "Back Left: " + backleft.getPower());
         telemetry.addData ("21", "Front Left: " + frontleft.getPower());
+        */
         // telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
 
         // Send telemetry data concerning gamepads to the driver station.
@@ -294,11 +298,23 @@ public class RangerMode extends OpMode {
 
         telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
 
-        telemetry.addData("22", "Warning" + warning);
-
-
-
-
+        //telemetry.addData("22", "Warning" + warning);
+        if(swivLeft!=null)
+        {
+            telemetry.addData("23", "Left Swivel" + swivLeft.getPosition());
+        }
+        if(swivRight!=null)
+        {
+            telemetry.addData("24", "Right Swivel" + swivRight.getPosition());
+        }
+        if(elevator!=null)
+        {
+            telemetry.addData("25", "Elevator" + elevator.getPosition());
+        }
+        if(platform!=null)
+        {
+            telemetry.addData("26", "Platform" + platform.getPosition());
+        }
     }
 
     private double scaleContinuousServo(float value)
@@ -306,12 +322,10 @@ public class RangerMode extends OpMode {
         return ((value / 2) + .5);
     }
 
-    public void moveSwiv()
-    {
-        if (gamepad1.left_bumper)
-        {
-            if (futureSwiv < time)
-            {
+    public void moveSwiv() {
+        //move claw and swivel up in increments
+        if (gamepad1.dpad_up) {
+            if (futureSwiv < time) {
                 futureSwiv = time + .1;
                 leftSwivPos += 0.1;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
@@ -319,10 +333,29 @@ public class RangerMode extends OpMode {
             }
         }
 
-        if (gamepad1.right_bumper)
-        {
-            if (futureSwiv < time)
-            {
+        //move claw and swivel down in increments
+        if (gamepad1.dpad_down) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos -= 0.1;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = 1 - leftSwivPos;
+            }
+        }
+
+        //move swivel up by _ increments
+        if (gamepad1.y) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos -= 0.1;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = 1 - leftSwivPos;
+            }
+        }
+
+        //move swivel down by _ increments
+        if (gamepad1.a) {
+            if (futureSwiv < time) {
                 futureSwiv = time + .1;
                 leftSwivPos -= 0.1;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
@@ -330,7 +363,12 @@ public class RangerMode extends OpMode {
             }
         }
     }
+    public void moveSwiv(double left)
+    {
+        leftSwivPos=left;
+        rightSwivPos=1-left;
 
+    }
     public void resetServos()
     {
         if (gamepad1.start)
@@ -361,6 +399,20 @@ public class RangerMode extends OpMode {
         backright.setPower(right);
         frontleft.setPower(left);
         backleft.setPower(left);
+    }
+
+    public void setSwivel()
+    {
+        //pick-up position
+        if(gamepad1.x)
+        {
+            moveSwiv(0.4);
+        }
+        //raised-up position
+        else if(gamepad1.b)
+        {
+            moveSwiv(0.6);
+        }
     }
 }
 
