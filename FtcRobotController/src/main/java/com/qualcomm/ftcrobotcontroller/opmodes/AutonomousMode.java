@@ -33,10 +33,10 @@ public class AutonomousMode extends OpMode {
     {
         swivLeft = hardwareMap.servo.get("sLeft");
         swivRight = hardwareMap.servo.get("sRight");
-        arm = hardwareMap.servo.get("arm180");
+        arm = hardwareMap.servo.get("elevator");
         futureSwiv = time;
         leftSwivPos = 0.5;
-        rightSwivPos = 0.5;
+        rightSwivPos = 0.5;                              
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         backleft = hardwareMap.dcMotor.get("back2");
