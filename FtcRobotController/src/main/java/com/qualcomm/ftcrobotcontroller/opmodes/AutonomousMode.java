@@ -31,12 +31,14 @@ public class AutonomousMode extends OpMode {
 
     public void init()
     {
+
+        
         swivLeft = hardwareMap.servo.get("sLeft");
         swivRight = hardwareMap.servo.get("sRight");
-        arm = hardwareMap.servo.get("arm180");
+        arm = hardwareMap.servo.get("elevator");
         futureSwiv = time;
         leftSwivPos = 0.5;
-        rightSwivPos = 0.5;
+        rightSwivPos = 0.5;                              
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         backleft = hardwareMap.dcMotor.get("back2");
@@ -52,25 +54,41 @@ public class AutonomousMode extends OpMode {
 
     public void loop()
     {
-        if(time>=27)
-            stop();
-        else{
-            if(time<=4) {
-                //FORWARD
-                driveAutoBot(0, 1);
+            if(time>2&&time<=3) {
+                //LEFT
+                driveAutoBot((float)-0.5,0);
+
+                //driveAutoBot(0, -1);
             }
-            else if(time>4&&time<=6)
+            else if(time>3&&time<=5)
+            {
+                driveAutoBot(0,0);
+            }
+            else if(time>5&&time<6.5)
+            {
+                driveAutoBot((float)-0.5,0);
+            }
+            else
+                driveAutoBot(0,0);
+            /*
+            driveAutoBot((float)-0.5,0);
+
+            else if(time>4&&time<=5) {
+                //STOP
+                driveAutoBot(0, 0);
+            }
+            else if(time>5&&time<=6)
             {
                 //LEFT
-                driveAutoBot(-1,0);
+                driveAutoBot((float)-0.5,0);
             }
-            else if(time>6&&time<=8)
+            else if(time>6&&time<=7)
             {
+                driveAutoBot(0,0);
                 //PLATFORM MOVEMENT
-                platform.setPosition(scaleContinuousWheel((float)0.5));
-            }
+                //` `   `   platform.setPosition(scaleContinuousWheel((float)0.5));
+            }*/
         }
-    }
 
 
     public void stop()
