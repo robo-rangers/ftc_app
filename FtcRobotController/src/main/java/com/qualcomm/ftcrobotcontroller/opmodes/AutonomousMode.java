@@ -31,6 +31,8 @@ public class AutonomousMode extends OpMode {
 
     public void init()
     {
+
+        
         swivLeft = hardwareMap.servo.get("sLeft");
         swivRight = hardwareMap.servo.get("sRight");
         arm = hardwareMap.servo.get("elevator");
@@ -52,16 +54,13 @@ public class AutonomousMode extends OpMode {
 
     public void loop()
     {
-        if(time>=27)
-            stop();
-        else{
-            if(time<=1) {
+            if(time>2&&time<=3) {
                 //LEFT
                 driveAutoBot((float)-0.5,0);
 
                 //driveAutoBot(0, -1);
             }
-            else if(time>1&&time<=5)
+            else if(time>3&&time<=5)
             {
                 driveAutoBot(0,0);
             }
@@ -69,8 +68,10 @@ public class AutonomousMode extends OpMode {
             {
                 driveAutoBot((float)-0.5,0);
             }
+            else
+                driveAutoBot(0,0);
             /*
-                            driveAutoBot((float)-0.5,0);
+            driveAutoBot((float)-0.5,0);
 
             else if(time>4&&time<=5) {
                 //STOP
@@ -88,7 +89,6 @@ public class AutonomousMode extends OpMode {
                 //` `   `   platform.setPosition(scaleContinuousWheel((float)0.5));
             }*/
         }
-    }
 
 
     public void stop()

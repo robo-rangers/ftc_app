@@ -13,7 +13,8 @@ public class RangerMode extends OpMode {
     //180 servos
     Servo swivLeft, swivRight;
     Servo elevator;
-    double futureSwiv, leftSwivPos, rightSwivPos;
+    Servo claw;
+    double futureSwiv, futureClaw, leftSwivPos, rightSwivPos, clawPos, platformPos;
 
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
@@ -42,9 +43,6 @@ public class RangerMode extends OpMode {
             swivLeft = null;
         }
 
-
-
-
         try
         {
             swivRight = hardwareMap.servo.get("sRight");
@@ -53,7 +51,6 @@ public class RangerMode extends OpMode {
         {
             swivRight = null;
         }
-
 
         try
         {
@@ -64,10 +61,21 @@ public class RangerMode extends OpMode {
             elevator = null;
         }
 
+        try
+        {
+            claw = hardwareMap.servo.get("claw");
+        }
+        catch (Exception p_exception)
+        {
+            claw = null;
+        }
 
         futureSwiv = time;
         leftSwivPos = 0.5;
         rightSwivPos = 0.5;
+
+        futureClaw = time;
+        clawPos = 0.5;
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         try
@@ -98,7 +106,6 @@ public class RangerMode extends OpMode {
             backright = null;
         }
 
-
         try
         {
             frontright = hardwareMap.dcMotor.get("front1");
@@ -118,7 +125,6 @@ public class RangerMode extends OpMode {
         }
 
 
-
         wheelPos = 0;
         future = time;
         warning =0;
@@ -134,13 +140,17 @@ public class RangerMode extends OpMode {
         setSwivel();
 
         swivLeft.setPosition(leftSwivPos);
-        swivRight.setPosition((rightSwivPos));
+        swivRight.setPosition(rightSwivPos);
+
+        //moving the claw
+        moveClaw();
+        claw.setPosition(clawPos);
 
         elevator.setPosition(scaleContinuousWheel2(-gamepad1.right_stick_y));
 
 
         //HANDLES PLATFORM
-        platform.setPosition(scaleContinuousWheel(-gamepad1.right_stick_x));
+        platform.setPosition(scaleContinuousWheel());
 
         driveBot();
 
@@ -192,7 +202,8 @@ public class RangerMode extends OpMode {
         return values[val];
     }
 
-
+    //NOT USED
+    /*
     private int pos180Servo (boolean left, boolean right, int pos) {
 
         if (left) {
@@ -217,7 +228,7 @@ public class RangerMode extends OpMode {
             }
         }
         return pos;
-    }
+    } */
 
     //this is used for the arm(elevator), its different because we dont need a warning for this
     private double scaleContinuousWheel2(float right_stick_y)
@@ -227,15 +238,19 @@ public class RangerMode extends OpMode {
 
 
     //this is used for the platfrom
-    private double scaleContinuousWheel (float right_stick_x)
+    private double scaleContinuousWheel ()
     {
-        if(right_stick_x>0)
+        platformPos=0.5;
+        if(gamepad1.right_trigger>0) {
             warning++;
-        else if(right_stick_x<0)
+            platformPos += gamepad1.right_trigger/2;
+        }
+        else if(gamepad1.left_trigger>0) {
             warning--;
+            platformPos -= gamepad1.left_trigger/2;
+        }
 
-        return (right_stick_x / 2) + .5;
-
+        return platformPos;
 
     }
 
@@ -251,8 +266,125 @@ public class RangerMode extends OpMode {
         }
 
     }
+    /*
+    private double scaleContinuousServo(float value)
+    {
+        return ((value / 2) + .5);
+    }*/
+
+    public void moveSwiv() {
+        //move claw and swivel up in increments
+        if (gamepad1.dpad_up) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos += 0.05;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = 1 - leftSwivPos;
+            }
+        }
+
+        //move claw and swivel down in increments
+        if (gamepad1.dpad_down) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos -= 0.05;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = 1 - leftSwivPos;
+            }
+        }
+
+        //move swivel up by _ increments
+        if (gamepad1.y) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos -= 0.1;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = 1 - leftSwivPos;
+            }
+        }
+
+        //move swivel down by _ increments
+        if (gamepad1.a) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos -= 0.1;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = 1 - leftSwivPos;
+            }
+        }
+    }
+    public void moveSwiv(double left)
+    {
+        leftSwivPos=left;
+        rightSwivPos=1-left;
+
+    }
+    public void resetServos()
+    {
+        if (gamepad1.start)
+        {
+            leftSwivPos = 0.5;
+
+            rightSwivPos = 0.5;
+
+            clawPos = 0.5;
+        }
+    }
+    public void setSwivel()
+    {
+        //pick-up position
+        if(gamepad1.x)
+        {
+            moveSwiv(0.4);
+        }
+        //raised-up position
+        else if(gamepad1.b)
+        {
+            moveSwiv(0.6);
+        }
+    }
 
 
+    public void moveClaw() {
+        //move claw and swivel up in increments
+        if (gamepad1.right_bumper) {
+            if (futureClaw < time) {
+                futureClaw = time + .1;
+                clawPos += 0.05;
+                clawPos = Range.clip(clawPos, 0, 1);
+            }
+        }
+
+        //move claw and swivel down in increments
+        if (gamepad1.left_bumper) {
+            if (futureClaw < time) {
+                futureClaw = time + .1;
+                clawPos -= 0.05;
+                clawPos = Range.clip(clawPos, 0, 1);
+            }
+        }
+    }
+    public void driveBot()
+    {
+
+        float x = gamepad1.left_stick_x;
+        float y = -gamepad1.left_stick_y;
+
+        //negate both to change which way is forward
+        float left = -(x+y);
+        float right = -(x-y);
+
+        right = Range.clip(right, -1, 1);
+        left = Range.clip(left, -1, 1);
+
+        right = (float)scaleInput(right);
+        left =  (float)scaleInput(left);
+
+        frontright.setPower(right);
+        backright.setPower(right);
+        frontleft.setPower(left);
+        backleft.setPower(left);
+    }
     private void updateGamepadTelemetry()
     {
 
@@ -315,103 +447,10 @@ public class RangerMode extends OpMode {
         {
             telemetry.addData("26", "Platform" + platform.getPosition());
         }
-    }
-
-    private double scaleContinuousServo(float value)
-    {
-        return ((value / 2) + .5);
-    }
-
-    public void moveSwiv() {
-        //move claw and swivel up in increments
-        if (gamepad1.dpad_up) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos += 0.05;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-
-        //move claw and swivel down in increments
-        if (gamepad1.dpad_down) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.05;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-
-        //move swivel up by _ increments
-        if (gamepad1.y) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-
-        //move swivel down by _ increments
-        if (gamepad1.a) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-    }
-    public void moveSwiv(double left)
-    {
-        leftSwivPos=left;
-        rightSwivPos=1-left;
-
-    }
-    public void resetServos()
-    {
-        if (gamepad1.start)
+        if(claw!=null)
         {
-            leftSwivPos = 0.5;
+            telemetry.addData("27", "Claw" + claw.getPosition());
 
-            rightSwivPos = 0.5;
-        }
-    }
-
-    public void driveBot()
-    {
-
-        float x = gamepad1.left_stick_x;
-        float y = -gamepad1.left_stick_y;
-
-        //negate both to change which way is forward
-        float left = -(x+y);
-        float right = -(x-y);
-
-        right = Range.clip(right, -1, 1);
-        left = Range.clip(left, -1, 1);
-
-        right = (float)scaleInput(right);
-        left =  (float)scaleInput(left);
-
-        frontright.setPower(right);
-        backright.setPower(right);
-        frontleft.setPower(left);
-        backleft.setPower(left);
-    }
-
-    public void setSwivel()
-    {
-        //pick-up position
-        if(gamepad1.x)
-        {
-            moveSwiv(0.4);
-        }
-        //raised-up position
-        else if(gamepad1.b)
-        {
-            moveSwiv(0.6);
         }
     }
 }
