@@ -69,6 +69,7 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("RangerMode3", RangerMode3.class);
     manager.register("DriveMode", DriveMode.class);
     manager.register("Autonomous Mode", AutonomousMode.class);
+    manager.register("ColorSensorTest", ColorTest.class);
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */

@@ -1,21 +1,25 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * Created by Sagar on 12/8/2015.
+ * Created by Sagar on 1/7/2016.
  */
-public class RangerMode extends OpMode {
 
+//this was created for the SOLE purpose for testing the color sensor
+public class ColorTest extends OpMode {
+
+    /**
     //180 servos
     Servo swivLeft, swivRight;
     Servo elevator;
     Servo claw;
     double futureSwiv, futureClaw, leftSwivPos, rightSwivPos, clawPos, platformPos;
-
+    **/
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
     Servo platform ,wheelTest;
@@ -27,7 +31,7 @@ public class RangerMode extends OpMode {
 
     ColorSensor RGB;
 
-    public RangerMode()
+    public ColorTest()
     {
 
     }
@@ -36,41 +40,7 @@ public class RangerMode extends OpMode {
     {
         //servo stuff
 
-        try
-        {
-            swivLeft = hardwareMap.servo.get("sLeft");
-        }
-        catch (Exception p_exception)
-        {
-            swivLeft = null;
-        }
 
-        try
-        {
-            swivRight = hardwareMap.servo.get("sRight");
-        }
-        catch (Exception p_exception)
-        {
-            swivRight = null;
-        }
-
-        try
-        {
-            elevator = hardwareMap.servo.get("elevator");
-        }
-        catch (Exception p_exception)
-        {
-            elevator = null;
-        }
-
-        try
-        {
-            claw = hardwareMap.servo.get("claw");
-        }
-        catch (Exception p_exception)
-        {
-            claw = null;
-        }
 
         try
         {
@@ -81,12 +51,7 @@ public class RangerMode extends OpMode {
             RGB = null;
         }
 
-        futureSwiv = time;
-        leftSwivPos = 0.5;
-        rightSwivPos = 0.5;
 
-        futureClaw = time;
-        clawPos = 0.5;
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         try
@@ -144,24 +109,18 @@ public class RangerMode extends OpMode {
     public void loop()
     {
         //resets all servos by pressing start
-        resetServos();
+
 
         //Handles the swivel
-        moveSwiv();
-        setSwivel();
 
-        swivLeft.setPosition(leftSwivPos);
-        swivRight.setPosition(rightSwivPos);
+
+
 
         //moving the claw
-        moveClaw();
-        claw.setPosition(clawPos);
-
-        elevator.setPosition(scaleContinuousWheel2(-gamepad1.right_stick_y));
 
 
         //HANDLES PLATFORM
-        platform.setPosition(scaleContinuousWheel());
+
 
         driveBot();
 
@@ -250,22 +209,7 @@ public class RangerMode extends OpMode {
     }
 
 
-    //this is used for the platfrom
-    private double scaleContinuousWheel ()
-    {
-        platformPos=0.5;
-        if(gamepad1.right_trigger>0) {
-            warning++;
-            platformPos -= gamepad1.right_trigger/2;
-        }
-        else if(gamepad1.left_trigger>0) {
-            warning--;
-            platformPos += gamepad1.left_trigger/2;
-        }
 
-        return platformPos;
-
-    }
 
     private void warningMessage()
     {
@@ -285,98 +229,10 @@ public class RangerMode extends OpMode {
         return ((value / 2) + .5);
     }*/
 
-    public void moveSwiv() {
-        //move claw and swivel up in increments
-        if (gamepad1.dpad_up) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.05;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-
-        //move claw and swivel down in increments
-        if (gamepad1.dpad_down) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos += 0.05;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-
-        //move swivel up by _ increments
-        if (gamepad1.y) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-
-        //move swivel down by _ increments
-        if (gamepad1.a) {
-            if (futureSwiv < time) {
-                futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
-                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
-            }
-        }
-    }
-    public void moveSwiv(double left)
-    {
-        leftSwivPos=left;
-        rightSwivPos=1-left;
-
-    }
-    public void resetServos()
-    {
-        if (gamepad1.start)
-        {
-            leftSwivPos = 0.5;
-
-            rightSwivPos = 0.5;
-
-            clawPos = 0.5;
-        }
-    }
-    public void setSwivel()
-    {
-        //pick-up position
-        if(gamepad1.x)
-        {
-            moveSwiv(0.4);
-        }
-        //raised-up position
-        else if(gamepad1.b)
-        {
-            moveSwiv(0.6);
-        }
-    }
 
 
-    public void moveClaw() {
-        //move claw and swivel up in increments
-        if (gamepad1.right_bumper) {
-            if (futureClaw < time) {
-                futureClaw = time + .1;
-                clawPos += 0.05;
-                clawPos = Range.clip(clawPos, 0, 1);
-            }
-        }
 
-        //move claw and swivel down in increments
-        if (gamepad1.left_bumper) {
-            if (futureClaw < time) {
-                futureClaw = time + .1;
-                clawPos -= 0.05;
-                clawPos = Range.clip(clawPos, 0, 1);
-            }
-        }
-    }
+
     public void driveBot()
     {
 
@@ -444,27 +300,7 @@ public class RangerMode extends OpMode {
         telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
 
         //telemetry.addData("22", "Warning" + warning);
-        if(swivLeft!=null)
-        {
-            telemetry.addData("23", "Left Swivel" + swivLeft.getPosition());
-        }
-        if(swivRight!=null)
-        {
-            telemetry.addData("24", "Right Swivel" + swivRight.getPosition());
-        }
-        if(elevator!=null)
-        {
-            telemetry.addData("25", "Elevator" + elevator.getPosition());
-        }
-        if(platform!=null)
-        {
-            telemetry.addData("26", "Platform" + platform.getPosition());
-        }
-        if(claw!=null)
-        {
-            telemetry.addData("27", "Claw" + claw.getPosition());
 
-        }
 
         if(RGB !=null)
         {
@@ -476,4 +312,5 @@ public class RangerMode extends OpMode {
         }
     }
 }
+
 

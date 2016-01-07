@@ -6,6 +6,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,6 +22,7 @@ public class SwivelMode extends OpMode {
     double futureSwiv,leftSwivPos, rightSwivPos;
     TouchSensor sensorTouch;
     OpticalDistanceSensor OpticalDistSensor;
+    ColorSensor RGB;
 
     public SwivelMode() {
 
@@ -134,14 +136,14 @@ public class SwivelMode extends OpMode {
         telemetry.addData ("19", "touchSensor: " + sensorTouch);
 
         telemetry.addData ("20", "OpticalDistanceSensor: " + OpticalDistSensor.getLightDetected());
-        telemetry.addData ("20", "opDS Light Detected: " + String.format("%.4f",OpticalDistSensor.getLightDetected()));
+        telemetry.addData ("20", "opDS Light Detected: " + String.format("%.4f", OpticalDistSensor.getLightDetected()));
         telemetry.addData ("21", "opDS Light Detected Raw: " + OpticalDistSensor.getLightDetectedRaw());
 
         telemetry.addData ("20", "OpticalDistanceSensor: " + OpticalDistSensor.getLightDetected());
 
-        telemetry.addData ("20", "opDS Light Detected: " + String.format("%.4f",OpticalDistSensor.getLightDetected()));
+        telemetry.addData ("20", "opDS Light Detected: " + String.format("%.4f", OpticalDistSensor.getLightDetected()));
         telemetry.addData ("21", "opDS Light Detected Raw: " + OpticalDistSensor.getLightDetectedRaw());
-        //telemetry.addData ("17", "cServo Dir: " + continuousTest.getDirection());
+
         //telemetry.addData ("18", "cServo Pos: " + continuousTest.getPosition());
         //telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
     }
