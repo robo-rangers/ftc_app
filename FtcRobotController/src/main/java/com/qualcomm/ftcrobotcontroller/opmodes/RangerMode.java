@@ -1,5 +1,4 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -243,11 +242,11 @@ public class RangerMode extends OpMode {
         platformPos=0.5;
         if(gamepad1.right_trigger>0) {
             warning++;
-            platformPos += gamepad1.right_trigger/2;
+            platformPos -= gamepad1.right_trigger/2;
         }
         else if(gamepad1.left_trigger>0) {
             warning--;
-            platformPos -= gamepad1.left_trigger/2;
+            platformPos += gamepad1.left_trigger/2;
         }
 
         return platformPos;
@@ -277,7 +276,7 @@ public class RangerMode extends OpMode {
         if (gamepad1.dpad_up) {
             if (futureSwiv < time) {
                 futureSwiv = time + .1;
-                leftSwivPos += 0.05;
+                leftSwivPos -= 0.05;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
                 rightSwivPos = 1 - leftSwivPos;
             }
@@ -287,7 +286,7 @@ public class RangerMode extends OpMode {
         if (gamepad1.dpad_down) {
             if (futureSwiv < time) {
                 futureSwiv = time + .1;
-                leftSwivPos -= 0.05;
+                leftSwivPos += 0.05;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
                 rightSwivPos = 1 - leftSwivPos;
             }
