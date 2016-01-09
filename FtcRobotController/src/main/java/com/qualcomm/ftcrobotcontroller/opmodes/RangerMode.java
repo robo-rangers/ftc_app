@@ -14,18 +14,18 @@ public class RangerMode extends OpMode {
     Servo swivLeft, swivRight;
     Servo elevator;
     Servo claw;
+    Servo platform ,wheelTest;
     double futureSwiv, futureClaw, leftSwivPos, rightSwivPos, clawPos, platformPos;
 
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
-    Servo platform ,wheelTest;
+
     int wheelPos;
     double future;
 
     //platform warning, how many turns before the wires catch
     int warning;
 
-    ColorSensor RGB;
 
     public RangerMode()
     {
@@ -72,14 +72,7 @@ public class RangerMode extends OpMode {
             claw = null;
         }
 
-        try
-        {
-            RGB = hardwareMap.colorSensor.get("rainbow");
-        }
-        catch (Exception p_exception)
-        {
-            RGB = null;
-        }
+
 
         futureSwiv = time;
         leftSwivPos = 0.5;
@@ -167,7 +160,7 @@ public class RangerMode extends OpMode {
 
         updateGamepadTelemetry();
 
-        RGB.enableLed(true);
+
 
     }
 
@@ -466,14 +459,7 @@ public class RangerMode extends OpMode {
 
         }
 
-        if(RGB !=null)
-        {
-            telemetry.addData ("28", "Amount of light " + RGB.alpha());
-            telemetry.addData("29", "The hue " + RGB.argb());
-            telemetry.addData("30", "blue light " + RGB.blue());
-            telemetry.addData("31", "green light " + RGB.green());
-            telemetry.addData("32", "red light " + RGB.red());
-        }
+
     }
 }
 

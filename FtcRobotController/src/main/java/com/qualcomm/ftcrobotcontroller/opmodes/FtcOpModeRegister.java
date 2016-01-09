@@ -65,11 +65,12 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("SURIEL MODE!!", SurielTeleOp.class);
     manager.register("AliceMode",WuOpmode.class);
     manager.register("RangerMode",RangerMode.class);
-    manager.register("RangerMode2", RangerMode2.class);
-    manager.register("RangerMode3", RangerMode3.class);
+   // manager.register("RangerMode2", RangerMode2.class);
+   // manager.register("RangerMode3", RangerMode3.class);
     manager.register("DriveMode", DriveMode.class);
     manager.register("Autonomous Mode", AutonomousMode.class);
     manager.register("ColorSensorTest", ColorTest.class);
+    manager.register("Roverine" , SuperRoverine.class);
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */

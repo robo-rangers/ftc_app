@@ -1,38 +1,44 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * Created by Sagar on 1/7/2016.
+ * Created by Sagar on 1/9/2016.
  */
+public class SuperRoverine extends OpMode {
 
-//this was created for the SOLE purpose for testing the color sensor
-public class ColorTest extends OpMode {
-
-    /**
-     * didnt have any servos attached at the time we did this test
     //180 servos
-    Servo swivLeft, swivRight;
+    /**
+     * Took out these too test new arm after Qualtifer one 1.9.16
+     * Servo claw;
+     * Servo swivLeft, swivRight;
+     **/
+
+    Servo claw2;
+
     Servo elevator;
-    Servo claw;
+    Servo platform ,wheelTest;
     double futureSwiv, futureClaw, leftSwivPos, rightSwivPos, clawPos, platformPos;
-    **/
+
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
-    Servo platform ,wheelTest;
+
+    //Testing longer stronger arm
+    DcMotor swivel;
+
     int wheelPos;
     double future;
+
+
 
     //platform warning, how many turns before the wires catch
     int warning;
 
-    ColorSensor RGB;
 
-    public ColorTest()
+    public SuperRoverine()
     {
 
     }
@@ -40,19 +46,46 @@ public class ColorTest extends OpMode {
     public void init()
     {
         //servo stuff
-
-
-
-        try
-        {
-            RGB = hardwareMap.colorSensor.get("rainbow");
+        try {
+            claw2 = hardwareMap.servo.get("claw");
         }
         catch (Exception p_exception)
         {
-            RGB = null;
+            telemetry.addData ("-1", "NO claw");
+            claw2 = null;
+        }
+
+        try
+        {
+
+            elevator = hardwareMap.servo.get("elevator");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO elevator");
+            elevator = null;
+        }
+
+        try
+        {
+            platform = hardwareMap.servo.get("360a");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO 360a Platform");
+            platform = null;
         }
 
 
+
+
+
+        futureSwiv = time;
+        leftSwivPos = 0.5;
+        rightSwivPos = 0.5;
+
+        futureClaw = time;
+        clawPos = 0.5;
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         try
@@ -61,6 +94,7 @@ public class ColorTest extends OpMode {
         }
         catch (Exception p_exception)
         {
+            telemetry.addData ("-1", "NO back2");
             backleft = null;
         }
 
@@ -70,6 +104,7 @@ public class ColorTest extends OpMode {
         }
         catch (Exception p_exception)
         {
+            telemetry.addData ("-1", "NO back1");
             backright = null;
 
         }
@@ -80,6 +115,7 @@ public class ColorTest extends OpMode {
         }
         catch (Exception p_exception)
         {
+            telemetry.addData ("-1", "NO front2");
             backright = null;
         }
 
@@ -89,17 +125,20 @@ public class ColorTest extends OpMode {
         }
         catch (Exception p_exception)
         {
+            telemetry.addData ("-1", "NO front1");
             frontright = null;
         }
 
-        try
-        {
-            platform = hardwareMap.servo.get("360a");
+        try {
+            swivel = hardwareMap.dcMotor.get("swivel");
         }
         catch (Exception p_exception)
         {
-            platform = null;
+            telemetry.addData ("-1", "NO swivel");
+            swivel = null;
         }
+
+
 
 
         wheelPos = 0;
@@ -113,21 +152,27 @@ public class ColorTest extends OpMode {
 
 
         //Handles the swivel
+        mooperScooper();
 
 
 
 
         //moving the claw
+        claw2.setPosition(rightSwivPos);
+
+        moveDCSwivel();
+
+        elevator.setPosition(scaleContinuousWheel2(-gamepad1.right_stick_y));
 
 
         //HANDLES PLATFORM
-
+        platform.setPosition(scaleContinuousWheel());
 
         driveBot();
 
         updateGamepadTelemetry();
 
-        RGB.enableLed(true);
+
 
     }
 
@@ -196,7 +241,7 @@ public class ColorTest extends OpMode {
                 future = time + .1;
                 pos++;
 
-                    if(pos >= 21) //lenght of the array, change if you change the array
+  M                    if(pos >= 21) //lenght of the array, change if you change the array
                         pos = 20;
             }
         }
@@ -210,7 +255,22 @@ public class ColorTest extends OpMode {
     }
 
 
+    //this is used for the platfrom
+    private double scaleContinuousWheel ()
+    {
+        platformPos=0.5;
+        if(gamepad1.right_trigger>0) {
+            warning++;
+            platformPos -= gamepad1.right_trigger/2;
+        }
+        else if(gamepad1.left_trigger>0) {
+            warning--;
+            platformPos += gamepad1.left_trigger/2;
+        }
 
+        return platformPos;
+
+    }
 
     private void warningMessage()
     {
@@ -229,6 +289,55 @@ public class ColorTest extends OpMode {
     {
         return ((value / 2) + .5);
     }*/
+
+    public void mooperScooper() {
+        //move claw and swivel up in increments
+        if (gamepad1.left_bumper) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos -= 0.05;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = leftSwivPos;
+            }
+        }
+
+        //move claw and swivel down in increments
+        if (gamepad1.right_bumper) {
+            if (futureSwiv < time) {
+                futureSwiv = time + .1;
+                leftSwivPos += 0.05;
+                leftSwivPos = Range.clip(leftSwivPos, 0, 1);
+                rightSwivPos = leftSwivPos;
+            }
+        }
+    }
+
+    public void moveSwiv(double left)
+    {
+        leftSwivPos=left;
+        rightSwivPos=1-left;
+
+    }
+
+
+
+
+    // swivel, arm, moop
+    public void moveDCSwivel()
+    {
+        if (gamepad1.dpad_up)
+        {
+            swivel.setPower(-.25);
+        }
+        else if (gamepad1.dpad_down)
+        {
+            swivel.setPower(.25);
+        }
+        else
+        {
+            swivel.setPower(0);
+        }
+    }
 
 
 
@@ -258,10 +367,10 @@ public class ColorTest extends OpMode {
     private void updateGamepadTelemetry()
     {
 
-        telemetry.addData ("00", "ver: 12/14 3:41");
+        telemetry.addData ("00", "ver: 1/9/16 12:07");
         telemetry.addData( "Warning", "WARNING" + warning);
         warningMessage();
-
+        telemetry.addData("01", "rightSwivPos: " + rightSwivPos);
         /*
         telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
         telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
@@ -303,15 +412,24 @@ public class ColorTest extends OpMode {
         //telemetry.addData("22", "Warning" + warning);
 
 
-        if(RGB !=null)
+
+        if(elevator!=null)
         {
-            telemetry.addData ("28", "Amount of light " + RGB.alpha());
-            telemetry.addData("29", "The hue " + RGB.argb());
-            telemetry.addData("30", "blue light " + RGB.blue());
-            telemetry.addData("31", "green light " + RGB.green());
-            telemetry.addData("32", "red light " + RGB.red());
+            telemetry.addData("25", "Elevator" + elevator.getPosition());
         }
+        if(platform!=null)
+        {
+            telemetry.addData("26", "Platform" + platform.getPosition());
+        }
+        if(claw2!=null)
+        {
+            telemetry.addData("27", "Claw" + claw2.getPosition());
+        }
+        else
+        {
+            telemetry.addData("27", "NO CLAW");
+        }
+
+
     }
 }
-
-
