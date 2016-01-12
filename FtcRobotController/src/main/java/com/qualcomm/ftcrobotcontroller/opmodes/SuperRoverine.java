@@ -2,7 +2,9 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -16,6 +18,10 @@ public class SuperRoverine extends OpMode {
      * Servo claw;
      * Servo swivLeft, swivRight;
      **/
+
+    UltrasonicSensor leftSonic;
+    // dont have the second one yet
+    UltrasonicSensor rightSonic;
 
     Servo claw2;
 
@@ -32,6 +38,8 @@ public class SuperRoverine extends OpMode {
     int wheelPos;
     double future;
 
+    OpticalDistanceSensor ODS;
+
 
 
     //platform warning, how many turns before the wires catch
@@ -45,6 +53,18 @@ public class SuperRoverine extends OpMode {
 
     public void init()
     {
+        try
+        {
+            leftSonic =hardwareMap.ultrasonicSensor.get("ear1");
+
+        }
+        catch (Exception p_exception)
+        {
+            leftSonic = null;
+        }
+
+
+
         //servo stuff
         try {
             claw2 = hardwareMap.servo.get("claw");
@@ -154,20 +174,17 @@ public class SuperRoverine extends OpMode {
         //Handles the swivel
         mooperScooper();
 
-
-
-
         //moving the claw
         claw2.setPosition(rightSwivPos);
-
         moveDCSwivel();
 
+        //move the arm
         elevator.setPosition(scaleContinuousWheel2(-gamepad1.right_stick_y));
-
 
         //HANDLES PLATFORM
         platform.setPosition(scaleContinuousWheel());
 
+        //handle the driving
         driveBot();
 
         updateGamepadTelemetry();
@@ -364,6 +381,34 @@ public class SuperRoverine extends OpMode {
         frontleft.setPower(left);
         backleft.setPower(left);
     }
+
+    boolean detectWhiteTape ()
+
+    {
+        //
+        // Assume not.
+        //
+        boolean l_return = false;
+
+        if (ODS != null)
+        {
+            //
+            // Is the amount of light detected above the threshold for white
+            // tape?
+            //
+            if (ODS.getLightDetected () > 0.8)
+            {
+                l_return = true;
+            }
+        }
+
+        //
+        // Return
+        //
+        return l_return;
+
+    } // a_ods_white_tape_detected
+
     private void updateGamepadTelemetry()
     {
 
@@ -417,10 +462,17 @@ public class SuperRoverine extends OpMode {
         {
             telemetry.addData("25", "Elevator" + elevator.getPosition());
         }
+        else
+            telemetry.addData("25", "NO elevator");
+
         if(platform!=null)
         {
             telemetry.addData("26", "Platform" + platform.getPosition());
         }
+        else
+            telemetry.addData("26", "NO Platform");
+
+
         if(claw2!=null)
         {
             telemetry.addData("27", "Claw" + claw2.getPosition());
@@ -429,6 +481,28 @@ public class SuperRoverine extends OpMode {
         {
             telemetry.addData("27", "NO CLAW");
         }
+
+        if(leftSonic!=null)
+        {
+            telemetry.addData("29", "ultrasonic sensor" + leftSonic.getUltrasonicLevel());
+            telemetry.addData("30", "ultrasonic sensor" + leftSonic.status());
+
+        }
+        else
+        {
+            telemetry.addData("29", "ULTRASONIC SENSOR is not here");
+        }
+
+        if(detectWhiteTape() == true)
+        {
+            telemetry.addData("31","I see the white light!");
+
+        }
+        else
+        {
+            telemetry.addData("31","I don't see the white light!");
+        }
+
 
 
     }
