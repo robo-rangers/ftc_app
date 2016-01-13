@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * Created by Sagar on 1/9/2016.
+ * Created by Sagar on 1/13/2016.
  */
-public class SuperRoverine extends OpMode {
+public class SuperDuperRoverine extends OpMode {
 
     //180 servos
     /**
@@ -53,7 +53,7 @@ public class SuperRoverine extends OpMode {
     int warning;
 
 
-    public SuperRoverine()
+    public SuperDuperRoverine()
     {
 
     }
@@ -194,10 +194,11 @@ public class SuperRoverine extends OpMode {
 
         //moving the claw
         claw2.setPosition(rightSwivPos);
+
         moveDCSwivel();
 
         //move the arm
-        arm.setPosition(scaleContinuousWheel2(-gamepad1.right_stick_y));
+        moveArm();
 
         //HANDLES PLATFORM
         platform.setPosition(scaleContinuousWheel());
@@ -217,6 +218,9 @@ public class SuperRoverine extends OpMode {
 
     }
 
+    public void moveDCSwivel() {
+        swivel.setPower(gamepad2.right_stick_y/2);
+    }
 
     public void stop()
     {
@@ -300,13 +304,13 @@ public class SuperRoverine extends OpMode {
     private double scaleContinuousWheel ()
     {
         platformPos=0.5;
-        if(gamepad1.right_trigger>0) {
+        if(gamepad2.left_stick_x<0) {
             warning++;
-            platformPos -= gamepad1.right_trigger/2;
+            platformPos += -gamepad2.left_stick_x/2;
         }
-        else if(gamepad1.left_trigger>0) {
+        else if(gamepad2.left_stick_x>0) {
             warning--;
-            platformPos += gamepad1.left_trigger/2;
+            platformPos += -gamepad2.left_stick_x/2;
         }
 
         return platformPos;
@@ -333,7 +337,7 @@ public class SuperRoverine extends OpMode {
 
     public void mooperScooper() {
         //move claw and swivel up in increments
-        if (gamepad1.left_bumper) {
+        if (gamepad2.left_bumper) {
             if (futureSwiv < time) {
                 futureSwiv = time + .1;
                 leftSwivPos -= 0.05;
@@ -343,7 +347,7 @@ public class SuperRoverine extends OpMode {
         }
 
         //move claw and swivel down in increments
-        if (gamepad1.right_bumper) {
+        if (gamepad2.right_bumper) {
             if (futureSwiv < time) {
                 futureSwiv = time + .1;
                 leftSwivPos += 0.05;
@@ -363,19 +367,17 @@ public class SuperRoverine extends OpMode {
 
 
     // swivel, arm, moop
-    public void moveDCSwivel()
+    public void moveArm()
     {
-        if (gamepad1.dpad_up)
-        {
-            swivel.setPower(-.3);
+        if (gamepad2.dpad_up) {
+            arm.setPosition(.7);
         }
-        else if (gamepad1.dpad_down)
+        else if (gamepad2.dpad_down)
         {
-            swivel.setPower(.25);
+            arm.setPosition(.3);
         }
-        else
-        {
-            swivel.setPower(0);
+        else {
+            arm.setPosition(.5);
         }
     }
 
@@ -425,7 +427,7 @@ public class SuperRoverine extends OpMode {
     public void reverseDriveBot()
     {
 
-        float x = -gamepad1.left_stick_x;
+        float x = gamepad1.left_stick_x;
         float y = gamepad1.left_stick_y;
 
         //negate both to change which way is forward

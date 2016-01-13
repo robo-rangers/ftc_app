@@ -57,13 +57,13 @@ public class FtcOpModeRegister implements OpModeRegister {
 
     manager.register("NullOp", NullOp.class);
 
-    manager.register("MatrixK9TeleOp", MatrixK9TeleOp.class);
-    manager.register("K9TeleOp", K9TeleOp.class);
-    manager.register ("PushBotAuto", PushBotAuto.class);
-    manager.register ("PushBotManual", PushBotManual.class);
-    manager.register ("SagarMode",SagarMode.class);
-    manager.register("SURIEL MODE!!", SurielTeleOp.class);
-    manager.register("AliceMode",WuOpmode.class);
+   // manager.register("MatrixK9TeleOp", MatrixK9TeleOp.class);
+   // manager.register("K9TeleOp", K9TeleOp.class);
+    //manager.register ("PushBotAuto", PushBotAuto.class);
+   // manager.register ("PushBotManual", PushBotManual.class);
+   // manager.register ("SagarMode",SagarMode.class);
+  //  manager.register("SURIEL MODE!!", SurielTeleOp.class);
+  //  manager.register("AliceMode",WuOpmode.class);
     manager.register("RangerMode",RangerMode.class);
    // manager.register("RangerMode2", RangerMode2.class);
    // manager.register("RangerMode3", RangerMode3.class);
@@ -71,6 +71,7 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("Autonomous Mode", AutonomousMode.class);
     manager.register("ColorSensorTest", ColorTest.class);
     manager.register("Roverine" , SuperRoverine.class);
+    manager.register("Ironman-WarMachine", SuperDuperRoverine.class);
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */
