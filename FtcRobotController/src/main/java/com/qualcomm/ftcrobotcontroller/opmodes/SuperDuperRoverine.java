@@ -1,7 +1,9 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
@@ -41,6 +43,8 @@ public class SuperDuperRoverine extends OpMode {
 
     OpticalDistanceSensor ODS;
 
+    ColorSensor RGB;
+
     // to test the limit of the arm extending
     int armLimt;
     double armPower;
@@ -60,6 +64,16 @@ public class SuperDuperRoverine extends OpMode {
 
     public void init()
     {
+        try
+        {
+            RGB = hardwareMap.colorSensor.get("rainbow");
+        }
+        catch (Exception p_exception)
+        {
+            RGB = null;
+        }
+
+
         try
         {
             ODS =hardwareMap.opticalDistanceSensor.get("ods");
@@ -119,16 +133,20 @@ public class SuperDuperRoverine extends OpMode {
         reverse = false;
 
         futureSwiv = time;
-        leftSwivPos = 0.5;
-        rightSwivPos = 0.5;
+        leftSwivPos = 0.0;
+        rightSwivPos = 0.0;
 
         futureClaw = time;
-        clawPos = 0.5;
+        clawPos = 0.0;
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         try
         {
             backleft = hardwareMap.dcMotor.get("back2");
+            //backleft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);//done in init
+
+            //backleft.getCurrentPosition();//This prints the position of the encoder
+            //backleft.setMode(DcMotorController.RunMode.RESET_ENCODERS);//set them back to 0
         }
         catch (Exception p_exception)
         {
@@ -150,6 +168,8 @@ public class SuperDuperRoverine extends OpMode {
         try
         {
             frontleft = hardwareMap.dcMotor.get("front2");
+            frontleft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+
         }
         catch (Exception p_exception)
         {
@@ -160,6 +180,8 @@ public class SuperDuperRoverine extends OpMode {
         try
         {
             frontright = hardwareMap.dcMotor.get("front1");
+
+            frontright.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         }
         catch (Exception p_exception)
         {
@@ -186,6 +208,7 @@ public class SuperDuperRoverine extends OpMode {
 
     public void loop()
     {
+
         //resets all servos by pressing start
 
 
@@ -219,7 +242,7 @@ public class SuperDuperRoverine extends OpMode {
     }
 
     public void moveDCSwivel() {
-        swivel.setPower(gamepad2.right_stick_y/2);
+        swivel.setPower(gamepad2.right_stick_y*.4);
     }
 
     public void stop()
@@ -304,13 +327,21 @@ public class SuperDuperRoverine extends OpMode {
     private double scaleContinuousWheel ()
     {
         platformPos=0.5;
-        if(gamepad2.left_stick_x<0) {
+        if(gamepad2.left_stick_x <0) {
             warning++;
             platformPos += -gamepad2.left_stick_x/2;
         }
-        else if(gamepad2.left_stick_x>0) {
+        else if(gamepad2.left_stick_x>0 ) {
             warning--;
             platformPos += -gamepad2.left_stick_x/2;
+        }
+        else if(gamepad1.right_trigger>0) {
+            warning++;
+            platformPos -= gamepad2.right_trigger/2;
+        }
+        else if(gamepad1.left_trigger>0) {
+            warning--;
+            platformPos += gamepad2.left_trigger/2;
         }
 
         return platformPos;
@@ -580,6 +611,22 @@ public class SuperDuperRoverine extends OpMode {
         {
             telemetry.addData("32","I don't see the white light!");
         }
+
+        if(RGB !=null)
+        {
+            telemetry.addData("33", "Amount of light " + RGB.alpha());
+            telemetry.addData("34", "The hue " + RGB.argb());
+            telemetry.addData("35", "blue light " + RGB.blue());
+            telemetry.addData("36", "green light " + RGB.green());
+            telemetry.addData("37", "red light " + RGB.red());
+        }
+        else
+        {
+            telemetry.addData("33", "Color sensor is not here");
+        }
+
+        telemetry.addData("34" , "Encoder data for frontLeft " + frontleft.getCurrentPosition());
+        telemetry.addData("35", "Encoder data for leftRight " + frontright.getCurrentPosition());
 
 
 

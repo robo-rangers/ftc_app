@@ -1,29 +1,60 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * Created by Sagar on 12/8/2015.
+ * Created by Sagar on 1/13/2016.
  */
 public class AutonomousMode extends OpMode {
 
+    //180 servos
+    /**
+     * Took out these too test new arm after Qualtifer one 1.9.16
+     * Servo claw;
+     * Servo swivLeft, swivRight;
+     **/
 
-    Servo swivLeft, swivRight;
+    UltrasonicSensor leftSonic;
+    // dont have the second one yet
+    // UltrasonicSensor rightSonic;
+
+    //using a different claw(has two 180 servos)
+    Servo claw2;
+
     Servo arm;
-    double futureSwiv, leftSwivPos, rightSwivPos;
+    Servo platform ,wheelTest;
+    double futureSwiv, futureClaw, leftSwivPos, rightSwivPos, clawPos, platformPos;
 
+    OpticalDistanceSensor odsSensor;
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
-    Servo platform ,wheelTest;
+
+    //Testing longer stronger arm
+    DcMotor swivel;
+
     int wheelPos;
     double future;
 
-    //platform warning
+    OpticalDistanceSensor ODS;
+
+    // to test the limit of the arm extending
+    int armLimt;
+    double armPower;
+
+    //making stuff for reverse mode
+    boolean reverse;
+    double reverseFuture;
+
+    //platform warning, how many turns before the wires catch
     int warning;
 
+    //AUTONOMOUS
+    boolean whiteLight;
     public AutonomousMode()
     {
 
@@ -31,65 +62,156 @@ public class AutonomousMode extends OpMode {
 
     public void init()
     {
+        try
+        {
+            ODS =hardwareMap.opticalDistanceSensor.get("ods");
 
-        
-        swivLeft = hardwareMap.servo.get("sLeft");
-        swivRight = hardwareMap.servo.get("sRight");
-        arm = hardwareMap.servo.get("elevator");
+        }
+        catch (Exception p_exception)
+        {
+            ODS = null;
+        }
+        try
+        {
+            leftSonic =hardwareMap.ultrasonicSensor.get("ear1");
+
+        }
+        catch (Exception p_exception)
+        {
+            leftSonic = null;
+        }
+
+
+
+        //servo stuff
+        try {
+            claw2 = hardwareMap.servo.get("claw");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO claw");
+            claw2 = null;
+        }
+
+        try
+        {
+
+            arm = hardwareMap.servo.get("elevator");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO elevator");
+            arm = null;
+        }
+
+        try
+        {
+            platform = hardwareMap.servo.get("360a");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO 360a Platform");
+            platform = null;
+        }
+
+
+
+        armLimt = 0;
+
+        reverse = false;
+
         futureSwiv = time;
         leftSwivPos = 0.5;
-        rightSwivPos = 0.5;                              
+        rightSwivPos = 0.5;
+
+        futureClaw = time;
+        clawPos = 0.0;
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
-        backleft = hardwareMap.dcMotor.get("back2");
-        backright = hardwareMap.dcMotor.get("back1");
-        frontleft = hardwareMap.dcMotor.get("front2");
-        frontright = hardwareMap.dcMotor.get("front1");
-        platform = hardwareMap.servo.get("360a");
+        try
+        {
+            backleft = hardwareMap.dcMotor.get("back2");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO back2");
+            backleft = null;
+        }
+
+        try
+        {
+            backright= hardwareMap.dcMotor.get("back1");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO back1");
+            backright = null;
+
+        }
+
+        try
+        {
+            frontleft = hardwareMap.dcMotor.get("front2");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO front2");
+            backright = null;
+        }
+
+        try
+        {
+            frontright = hardwareMap.dcMotor.get("front1");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO front1");
+            frontright = null;
+        }
+
+        try {
+            swivel = hardwareMap.dcMotor.get("swivel");
+        }
+        catch (Exception p_exception)
+        {
+            telemetry.addData ("-1", "NO swivel");
+            swivel = null;
+        }
+
+
+
 
         wheelPos = 0;
         future = time;
         warning =0;
+
+        whiteLight=false;
     }
 
     public void loop()
     {
-            if(time>2&&time<=3) {
-                //LEFT
-                driveAutoBot((float)-0.5,0);
-
-                //driveAutoBot(0, -1);
-            }
-            else if(time>3&&time<=5)
-            {
-                driveAutoBot(0,0);
-            }
-            else if(time>5&&time<6.5)
-            {
-                driveAutoBot((float)-0.5,0);
-            }
-            else
-                driveAutoBot(0,0);
-            /*
-            driveAutoBot((float)-0.5,0);
-
-            else if(time>4&&time<=5) {
-                //STOP
-                driveAutoBot(0, 0);
-            }
-            else if(time>5&&time<=6)
-            {
-                //LEFT
-                driveAutoBot((float)-0.5,0);
-            }
-            else if(time>6&&time<=7)
-            {
-                driveAutoBot(0,0);
-                //PLATFORM MOVEMENT
-                //` `   `   platform.setPosition(scaleContinuousWheel((float)0.5));
-            }*/
+        if(time<6&&ODS.getLightDetectedRaw()<23&&!whiteLight) {
+            driveAutoBot(0, (float) .4); //GOES BACKWARDS
         }
+        else if(ODS.getLightDetectedRaw()>=23)//WHITEANDINTHECENTER
+        {
+            whiteLight=true;
+            stopBot();
+        }
+        else if(time>=6)
+        {
+            stopBot();
+        }
+        updateGamepadTelemetry();
 
+
+
+
+    }
+
+    public void moveDCSwivel() {
+        swivel.setPower(gamepad2.right_stick_y/2);
+    }
 
     public void stop()
     {
@@ -134,7 +256,8 @@ public class AutonomousMode extends OpMode {
         return values[val];
     }
 
-
+    //NOT USED
+    /*
     private int pos180Servo (boolean left, boolean right, int pos) {
 
         if (left) {
@@ -154,23 +277,34 @@ public class AutonomousMode extends OpMode {
                 future = time + .1;
                 pos++;
 
-                if(pos >= 21) //lenght of the array, change if you change the array
-                    pos = 20;
+  M                    if(pos >= 21) //lenght of the array, change if you change the array
+                        pos = 20;
             }
         }
         return pos;
+    } */
+
+    //this is used for the arm(elevator), its different because we dont need a warning for this
+    private double scaleContinuousWheel2(float right_stick_y)
+    {
+        return (right_stick_y / 2) + .5;
     }
 
 
-    private double scaleContinuousWheel (float right_stick_x)
+    //this is used for the platfrom
+    private double scaleContinuousWheel ()
     {
-        if(right_stick_x>0)
+        platformPos=0.5;
+        if(gamepad2.left_stick_x<0) {
             warning++;
-        else if(right_stick_x<0)
+            platformPos += -gamepad2.left_stick_x/2;
+        }
+        else if(gamepad2.left_stick_x>0) {
             warning--;
+            platformPos += -gamepad2.left_stick_x/2;
+        }
 
-        return (right_stick_x / 2) + .5;
-
+        return platformPos;
 
     }
 
@@ -186,97 +320,61 @@ public class AutonomousMode extends OpMode {
         }
 
     }
-
-
-    private void updateGamepadTelemetry()
-    {
-
-        telemetry.addData ("00", "ver: 12/14 3:41");
-        telemetry.addData( "Warning", "WARNING" + warning);
-        warningMessage();
-
-        telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
-        telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
-        telemetry.addData ("03", "GP1 RightHor: " + gamepad1.right_stick_x);
-        telemetry.addData ("04", "GP1 RightVert: " + -gamepad1.right_stick_y);
-
-        telemetry.addData ("05", "GP1 B: " + gamepad1.b);
-        telemetry.addData ("06", "GP1 A: " + gamepad1.a);
-        telemetry.addData ("07", "GP1 X: " + gamepad1.x);
-        telemetry.addData ("08", "GP1 A: " + gamepad1.y);
-
-        telemetry.addData ("09", "GP1 bDPADL: " + gamepad1.dpad_left);
-        telemetry.addData ("10", "GP1 bDPADR: " + gamepad1.dpad_right);
-        telemetry.addData ("11", "GP1 bDPADUP: " + gamepad1.dpad_up);
-        telemetry.addData ("12", "GP1 bDPADDOWN: " + gamepad1.dpad_down);
-
-        telemetry.addData ("13", "GP1 LEFTB: " + gamepad1.left_stick_button);
-        telemetry.addData ("14", "GP1 RIGHTB: " + gamepad1.right_stick_button);
-        telemetry.addData ("15", "GP1 RTRIG: " + gamepad1.left_trigger);
-        telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
-
-        telemetry.addData ("17", "ARM POS: " + arm.getPosition());
-
-        telemetry.addData ("18", "Back Right: " + backright.getPower());
-        telemetry.addData ("19", "Front Right: " + frontright.getPower());
-        telemetry.addData ("20", "Back Left: " + backleft.getPower());
-        telemetry.addData ("21", "Front Left: " + frontleft.getPower());
-        // telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
-
-        // Send telemetry data concerning gamepads to the driver station.
-
-        //telemetry.addData ("17", "cServo Dir: " + continuousTest.getDirection());
-
-        //telemetry.addData ("18", "cServo Pos: " + continuousTest.getPosition());
-
-        telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
-
-        telemetry.addData("22", "Warning" + warning);
-
-
-
-
-    }
-
+    /*
     private double scaleContinuousServo(float value)
     {
         return ((value / 2) + .5);
-    }
+    }*/
 
-    public void moveSwiv()
-    {
-        if (gamepad1.left_bumper)
-        {
-            if (futureSwiv < time)
-            {
+    public void mooperScooper() {
+        //move claw and swivel up in increments
+        if (gamepad2.left_bumper) {
+            if (futureSwiv < time) {
                 futureSwiv = time + .1;
-                leftSwivPos += 0.1;
+                leftSwivPos -= 0.05;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
+                rightSwivPos = leftSwivPos;
             }
         }
 
-        if (gamepad1.right_bumper)
-        {
-            if (futureSwiv < time)
-            {
+        //move claw and swivel down in increments
+        if (gamepad2.right_bumper) {
+            if (futureSwiv < time) {
                 futureSwiv = time + .1;
-                leftSwivPos -= 0.1;
+                leftSwivPos += 0.05;
                 leftSwivPos = Range.clip(leftSwivPos, 0, 1);
-                rightSwivPos = 1 - leftSwivPos;
+                rightSwivPos = leftSwivPos;
             }
         }
     }
 
-    public void resetServos()
+    public void moveSwiv(double left)
     {
-        if (gamepad1.start)
-        {
-            leftSwivPos = 0.5;
+        leftSwivPos=left;
+        rightSwivPos=1-left;
+    }
 
-            rightSwivPos = 0.5;
+
+
+
+    // swivel, arm, moop
+    public void moveArm()
+    {
+        if (gamepad2.dpad_up) {
+            arm.setPosition(.7);
+        }
+        else if (gamepad2.dpad_down)
+        {
+            arm.setPosition(.3);
+        }
+        else {
+            arm.setPosition(.5);
         }
     }
+
+
+
+
 
     public void driveBot()
     {
@@ -299,11 +397,29 @@ public class AutonomousMode extends OpMode {
         frontleft.setPower(left);
         backleft.setPower(left);
     }
-    public void driveAutoBot(float xa, float ya)
+
+    public void handlingReverse()
+    {
+        if(gamepad1.a)
+        {
+            if (reverseFuture < time)
+            {
+                reverseFuture = time + .1;
+                reverseFuture += 0.05;
+                if(reverse)
+                    reverse = false;
+                else
+                    reverse = true;
+            }
+
+        }
+    }
+
+    public void reverseDriveBot()
     {
 
-        float x = xa;
-        float y = -ya;
+        float x = gamepad1.left_stick_x;
+        float y = gamepad1.left_stick_y;
 
         //negate both to change which way is forward
         float left = -(x+y);
@@ -320,5 +436,171 @@ public class AutonomousMode extends OpMode {
         frontleft.setPower(left);
         backleft.setPower(left);
     }
-}
 
+    boolean detectWhiteTape ()
+
+    {
+        //
+        // Assume not.
+        //
+        boolean l_return = false;
+
+        if (ODS != null)
+        {
+            //
+            // Is the amount of light detected above the threshold for white
+            // tape?
+            //
+            if (ODS.getLightDetected () > 0.8)
+            {
+                l_return = true;
+            }
+        }
+
+        //
+        // Return
+        //
+        return l_return;
+
+    } // a_ods_white_tape_detected
+
+    private void updateGamepadTelemetry()
+    {
+
+        telemetry.addData ("00", "ver: 1/13/16 4:02");
+        telemetry.addData( "Warning", "WARNING" + warning);
+        warningMessage();
+        telemetry.addData("01", "rightSwivPos: " + rightSwivPos);
+
+        telemetry.addData("0", "GP1 LeftHor: " + gamepad1.left_stick_x);
+        telemetry.addData ("2", "GP1 LeftVert: " + -gamepad1.left_stick_y);
+
+        /*
+        telemetry.addData ("01", "GP1 LeftHor: " + gamepad1.left_stick_x);
+        telemetry.addData ("02", "GP1 LeftVert: " + -gamepad1.left_stick_y);
+        telemetry.addData ("03", "GP1 RightHor: " + gamepad1.right_stick_x);
+        telemetry.addData ("04", "GP1 RightVert: " + -gamepad1.right_stick_y);
+
+        telemetry.addData ("05", "GP1 B: " + gamepad1.b);
+        telemetry.addData ("06", "GP1 A: " + gamepad1.a);
+        telemetry.addData ("07", "GP1 X: " + gamepad1.x);
+        telemetry.addData ("08", "GP1 A: " + gamepad1.y);
+
+        telemetry.addData ("09", "GP1 bDPADL: " + gamepad1.dpad_left);
+        telemetry.addData ("10", "GP1 bDPADR: " + gamepad1.dpad_right);
+        telemetry.addData ("11", "GP1 bDPADUP: " + gamepad1.dpad_up);
+        telemetry.addData ("12", "GP1 bDPADDOWN: " + gamepad1.dpad_down);
+
+        telemetry.addData ("13", "GP1 LEFTB: " + gamepad1.left_stick_button);
+        telemetry.addData ("14", "GP1 RIGHTB: " + gamepad1.right_stick_button);
+        telemetry.addData ("15", "GP1 RTRIG: " + gamepad1.left_trigger);
+        telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
+
+        telemetry.addData ("17", "ARM POS: " + elevator.getPosition());
+
+        telemetry.addData ("18", "Back Right: " + backright.getPower());
+        telemetry.addData ("19", "Front Right: " + frontright.getPower());
+        telemetry.addData ("20", "Back Left: " + backleft.getPower());
+        telemetry.addData ("21", "Front Left: " + frontleft.getPower());
+        */
+        // telemetry.addData ("16", "GP1 LTRIG: " + gamepad1.right_trigger);
+
+        // Send telemetry data concerning gamepads to the driver station.
+
+        //telemetry.addData ("17", "cServo Dir: " + continuousTest.getDirection());
+
+        //telemetry.addData ("18", "cServo Pos: " + continuousTest.getPosition());
+
+        telemetry.addData ("WHEEL", "WHEELPOS:" + wheelPos);
+
+        //telemetry.addData("22", "Warning" + warning);
+
+
+
+        if(arm!=null)
+        {
+            telemetry.addData("25", "Elevator" + arm.getPosition());
+        }
+        else
+            telemetry.addData("25", "NO elevator");
+
+        if(platform!=null)
+        {
+            telemetry.addData("26", "Platform" + platform.getPosition());
+        }
+        else
+            telemetry.addData("26", "NO Platform");
+
+
+        if(claw2!=null)
+        {
+            telemetry.addData("27", "Claw" + claw2.getPosition());
+        }
+        else
+        {
+            telemetry.addData("27", "NO CLAW");
+        }
+
+        if(leftSonic!=null)
+        {
+            telemetry.addData("29", "ultrasonic sensor" + leftSonic.getUltrasonicLevel());
+            telemetry.addData("30", "ultrasonic sensor" + leftSonic.status());
+
+        }
+        else
+        {
+            telemetry.addData("29", "ULTRASONIC SENSOR is not here");
+        }
+
+        if(ODS != null)
+        {
+            telemetry.addData("31a", "ods " + ODS.getLightDetected());
+            telemetry.addData("31b", "ods " + ODS.getLightDetectedRaw());
+        }
+        else
+        {
+            telemetry.addData("31", "ODS is not here");
+        }
+
+        if(detectWhiteTape() == true)
+        {
+            telemetry.addData("32","I see the white light!");
+
+        }
+        else
+        {
+            telemetry.addData("32","I don't see the white light!");
+        }
+
+
+
+    }
+    public void driveAutoBot(float xa,float ya)
+    {
+
+        float x=xa;
+        float y=-ya;
+
+//negatebothtochangewhichwayisforward
+        float left=-(x+y);
+        float right=-(x-y);
+
+        right=Range.clip(right,-1,1);
+        left=Range.clip(left,-1,1);
+
+        right=(float)scaleInput(right);
+        left=(float)scaleInput(left);
+
+        frontright.setPower(right);
+        backright.setPower(right);
+        frontleft.setPower(left);
+        backleft.setPower(left);
+    }
+    public void stopBot()
+    {
+        frontright.setPower(0);
+        backright.setPower(0);
+        frontleft.setPower(0);
+        backleft.setPower(0);
+    }
+}
