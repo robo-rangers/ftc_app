@@ -32,6 +32,9 @@ public class SuperDuperRoverine extends OpMode {
     Servo platform ,wheelTest;
     double futureSwiv, futureClaw, leftSwivPos, rightSwivPos, clawPos, platformPos;
 
+    Servo aVRaise, aVTurn;
+    double aVRaisePos, aVTurnPos, futureVT, futureVR;
+
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
 
@@ -41,9 +44,9 @@ public class SuperDuperRoverine extends OpMode {
     int wheelPos;
     double future;
 
-    OpticalDistanceSensor ODS;
+    OpticalDistanceSensor ODSCenter, ODSFront;
 
-    ColorSensor RGB;
+    ColorSensor color;
 
     // to test the limit of the arm extending
     int armLimt;
@@ -66,22 +69,51 @@ public class SuperDuperRoverine extends OpMode {
     {
         try
         {
-            RGB = hardwareMap.colorSensor.get("rainbow");
+            color =hardwareMap.colorSensor.get("color");
+
         }
         catch (Exception p_exception)
         {
-            RGB = null;
+            color = null;
+        }
+        try
+        {
+            aVRaise = hardwareMap.servo.get("Raiser");
+
+        }
+        catch (Exception p_exception)
+        {
+            aVRaise = null;
+        }
+
+        try
+        {
+            aVTurn = hardwareMap.servo.get("Turner");
+
+        }
+        catch (Exception p_exception)
+        {
+            aVTurn = null;
         }
 
 
         try
         {
-            ODS =hardwareMap.opticalDistanceSensor.get("ods");
+            ODSCenter =hardwareMap.opticalDistanceSensor.get("odsC");
 
         }
         catch (Exception p_exception)
         {
-            ODS = null;
+            ODSCenter = null;
+        }
+        try
+        {
+            ODSFront =hardwareMap.opticalDistanceSensor.get("odsF");
+
+        }
+        catch (Exception p_exception)
+        {
+            ODSFront = null;
         }
         try
         {
@@ -127,7 +159,10 @@ public class SuperDuperRoverine extends OpMode {
         }
 
 
-
+        aVRaisePos = 1;
+        aVTurnPos = 0.82;
+        futureVT = time;
+        futureVR = time;
         armLimt = 0;
 
         reverse = false;
@@ -206,10 +241,43 @@ public class SuperDuperRoverine extends OpMode {
         warning =0;
     }
 
+    public void turnAV(String c)
+    {
+        if(c.equals("red"))
+        {
+            if(color.red()>0&&color.green()==0&&color.blue()==0) //CHECKING FOR RED
+            {
+                aVTurnPos = .82;
+
+            }
+            else if(color.red()==0&&color.green()==0&&color.blue()>0)  //CHECKING FOR BLUE
+            {
+                aVTurnPos = .18;
+
+            }
+
+        }
+        else if(c.equals("blue"))
+        {
+            if(color.red()>0&&color.green()==0&&color.blue()==0) //CHECKING FOR RED
+            {
+                aVTurnPos = .18;//turn right
+
+            }
+            else if(color.red()==0&&color.green()==0&&color.blue()>0)  //CHECKING FOR BLUE
+            {
+                aVTurnPos = .82;
+
+            }
+        }
+
+    }
     public void loop()
     {
 
+        //turnAV("red");
         //resets all servos by pressing start
+
 
 
         //Handles the swivel
@@ -217,6 +285,12 @@ public class SuperDuperRoverine extends OpMode {
 
         //moving the claw
         claw2.setPosition(rightSwivPos);
+
+        //aVRaiser();
+        //aVTurner();
+
+        aVTurn.setPosition(aVTurnPos);
+        aVRaise.setPosition(aVRaisePos);
 
         moveDCSwivel();
 
@@ -242,7 +316,13 @@ public class SuperDuperRoverine extends OpMode {
     }
 
     public void moveDCSwivel() {
-        swivel.setPower(gamepad2.right_stick_y*.4);
+        if(gamepad2.right_stick_y<0)
+            swivel.setPower(-gamepad2.right_stick_y*.2);
+        else if(gamepad2.right_stick_y>0)
+            swivel.setPower(-gamepad2.right_stick_y*.4);
+        else{
+            swivel.setPower(0);
+        }
     }
 
     public void stop()
@@ -335,11 +415,11 @@ public class SuperDuperRoverine extends OpMode {
             warning--;
             platformPos += -gamepad2.left_stick_x/2;
         }
-        else if(gamepad1.right_trigger>0) {
+        else if(gamepad2.right_trigger>0) {
             warning++;
             platformPos -= gamepad2.right_trigger/2;
         }
-        else if(gamepad1.left_trigger>0) {
+        else if(gamepad2.left_trigger>0) {
             warning--;
             platformPos += gamepad2.left_trigger/2;
         }
@@ -365,6 +445,58 @@ public class SuperDuperRoverine extends OpMode {
     {
         return ((value / 2) + .5);
     }*/
+
+    public void aVRaiser ()
+    {
+        if (gamepad1.dpad_up) {
+            if (futureVR < time) {
+                futureVR = time + .1;
+                aVRaisePos -= 0.02;
+                aVRaisePos = Range.clip(aVRaisePos, 0, 1);
+
+            }
+        }
+
+        //move claw and swivel down in increments
+        if (gamepad1.dpad_down) {
+            if (futureVR < time) {
+                futureVR = time + .1;
+                aVRaisePos += 0.02;
+                aVRaisePos = Range.clip(aVRaisePos, 0, 1);
+
+            }
+        }
+    }
+
+    public void aVTurner ()
+    {
+        if (gamepad1.dpad_left) {
+            if (futureVT < time) {
+                futureVT = time + .1;
+                aVTurnPos -= 0.02;
+                aVTurnPos = Range.clip(aVTurnPos, 0, 1);
+
+            }
+        }
+
+        //move claw and swivel down in increments
+        if (gamepad1.dpad_right) {
+            if (futureVR < time) {
+                futureVR = time + .1;
+                aVTurnPos += 0.02;
+                aVTurnPos = Range.clip(aVTurnPos, 0, 1);
+
+            }
+        }
+    }
+    public void vAutoMode()
+    {
+
+    }
+    public void vDriverMode()
+    {
+
+    }
 
     public void mooperScooper() {
         //move claw and swivel up in increments
@@ -485,13 +617,13 @@ public class SuperDuperRoverine extends OpMode {
         //
         boolean l_return = false;
 
-        if (ODS != null)
+        if (ODSCenter != null)
         {
             //
             // Is the amount of light detected above the threshold for white
             // tape?
             //
-            if (ODS.getLightDetected () > 0.8)
+            if (ODSCenter.getLightDetected () > 0.8)
             {
                 l_return = true;
             }
@@ -592,15 +724,27 @@ public class SuperDuperRoverine extends OpMode {
             telemetry.addData("29", "ULTRASONIC SENSOR is not here");
         }
 
-        if(ODS != null)
+        if(ODSCenter != null)
         {
-            telemetry.addData("31a", "ods " + ODS.getLightDetected());
-            telemetry.addData("31b", "ods " + ODS.getLightDetectedRaw());
+            telemetry.addData("31a", "odsCENTER " + ODSCenter.getLightDetected());
+            telemetry.addData("31b", "odsCENTER " + ODSCenter.getLightDetectedRaw());
         }
         else
         {
-            telemetry.addData("31", "ODS is not here");
+            telemetry.addData("31", "ODSCenter is not here");
         }
+
+
+        if(ODSFront != null)
+        {
+            telemetry.addData("31c", "odsFRONT " + ODSFront.getLightDetected());
+            telemetry.addData("31d", "odsFRONT " + ODSFront.getLightDetectedRaw());
+        }
+        else
+        {
+            telemetry.addData("31", "ODSFront is not here");
+        }
+
 
         if(detectWhiteTape() == true)
         {
@@ -612,21 +756,40 @@ public class SuperDuperRoverine extends OpMode {
             telemetry.addData("32","I don't see the white light!");
         }
 
-        if(RGB !=null)
+        if(color !=null)
         {
-            telemetry.addData("33", "Amount of light " + RGB.alpha());
-            telemetry.addData("34", "The hue " + RGB.argb());
-            telemetry.addData("35", "blue light " + RGB.blue());
-            telemetry.addData("36", "green light " + RGB.green());
-            telemetry.addData("37", "red light " + RGB.red());
+
+            telemetry.addData("33", "Amount of light " + color.alpha());
+            telemetry.addData("34", "The hue is " + color.argb());
+            telemetry.addData("35", "blue light " + color.blue());
+            telemetry.addData("36", "green light " + color.green());
+            telemetry.addData("37", "red light " + color.red());
+
         }
         else
         {
-            telemetry.addData("33", "Color sensor is not here");
+            telemetry.addData("33", "NO COLOR SENSOR");
         }
 
-        telemetry.addData("34" , "Encoder data for frontLeft " + frontleft.getCurrentPosition());
-        telemetry.addData("35", "Encoder data for leftRight " + frontright.getCurrentPosition());
+        if(aVRaise!= null)
+        {
+            telemetry.addData("38", "Raise pos " + aVRaisePos);
+        }
+        else
+        {
+            telemetry.addData("38", "The raiser is not here");
+        }
+
+        if(aVTurn != null)
+        {
+            telemetry.addData("39", "Turner pos " + aVTurnPos);
+        }
+        else
+        {
+            telemetry.addData("39", "The turner is not here");
+        }
+        //telemetry.addData("34" , "Encoder data for frontLeft " + frontleft.getCurrentPosition());
+        //telemetry.addData("35", "Encoder data for leftRight " + frontright.getCurrentPosition());
 
 
 

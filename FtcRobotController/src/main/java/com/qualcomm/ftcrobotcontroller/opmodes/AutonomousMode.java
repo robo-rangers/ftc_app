@@ -1,6 +1,7 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Sagar on 1/13/2016.
  */
+//THIS IS THE BLUE CODE REMEMBER TO INVERSE THE NUMBER FOR THE RED CODE
 public class AutonomousMode extends OpMode {
 
     //180 servos
@@ -19,6 +21,7 @@ public class AutonomousMode extends OpMode {
      * Servo swivLeft, swivRight;
      **/
 
+    boolean detectedColor;
     UltrasonicSensor leftSonic;
     // dont have the second one yet
     // UltrasonicSensor rightSonic;
@@ -30,7 +33,6 @@ public class AutonomousMode extends OpMode {
     Servo platform ,wheelTest;
     double futureSwiv, futureClaw, leftSwivPos, rightSwivPos, clawPos, platformPos;
 
-    OpticalDistanceSensor odsSensor;
     //wheel stuff
     DcMotor backright, backleft, frontleft, frontright;
 
@@ -39,8 +41,6 @@ public class AutonomousMode extends OpMode {
 
     int wheelPos;
     double future;
-
-    OpticalDistanceSensor ODS;
 
     // to test the limit of the arm extending
     int armLimt;
@@ -54,35 +54,31 @@ public class AutonomousMode extends OpMode {
     int warning;
 
     //AUTONOMOUS
-    boolean whiteLight;
+    boolean whiteLight, whiteLight1;
+    int step=1;
+    OpticalDistanceSensor ODSCenter, ODSFront;
+    Servo aVTurn,aVRaise;
+    double aVRaisePos, aVTurnPos, futureVT, futureVR;
+    /*
+    aVTurn
+    down = 1
+    up = .42
+
+    aVRaise
+    left =.82
+    right = .18
+
+     */
+
+    ColorSensor color;
+
     public AutonomousMode()
-    {
-
-    }
-
+    {}
     public void init()
     {
-        try
-        {
-            ODS =hardwareMap.opticalDistanceSensor.get("ods");
-
-        }
-        catch (Exception p_exception)
-        {
-            ODS = null;
-        }
-        try
-        {
-            leftSonic =hardwareMap.ultrasonicSensor.get("ear1");
-
-        }
-        catch (Exception p_exception)
-        {
-            leftSonic = null;
-        }
-
-
-
+        detectedColor = false;
+        aVRaisePos = .42;
+        aVTurnPos = .82;
         //servo stuff
         try {
             claw2 = hardwareMap.servo.get("claw");
@@ -95,7 +91,6 @@ public class AutonomousMode extends OpMode {
 
         try
         {
-
             arm = hardwareMap.servo.get("elevator");
         }
         catch (Exception p_exception)
@@ -114,18 +109,6 @@ public class AutonomousMode extends OpMode {
             platform = null;
         }
 
-
-
-        armLimt = 0;
-
-        reverse = false;
-
-        futureSwiv = time;
-        leftSwivPos = 0.5;
-        rightSwivPos = 0.5;
-
-        futureClaw = time;
-        clawPos = 0.0;
         //wheel stuff
         //RIGHTS ARE 1'S AND LEFTS ARE 2'S
         try
@@ -146,7 +129,6 @@ public class AutonomousMode extends OpMode {
         {
             telemetry.addData ("-1", "NO back1");
             backright = null;
-
         }
 
         try
@@ -178,37 +160,210 @@ public class AutonomousMode extends OpMode {
             swivel = null;
         }
 
+        armLimt = 0;
 
+        reverse = false;
 
+        futureSwiv = time;
+        leftSwivPos = 0.5;
+        rightSwivPos = 0.5;
 
+        futureClaw = time;
+        clawPos = 0.0;
+
+        //AUTONOMOUS
         wheelPos = 0;
         future = time;
         warning =0;
-
         whiteLight=false;
+        whiteLight1=false;
+
+        try
+        {
+            ODSCenter =hardwareMap.opticalDistanceSensor.get("odsC");
+
+        }
+        catch (Exception p_exception)
+        {
+            ODSCenter = null;
+        }
+        try
+        {
+            ODSFront =hardwareMap.opticalDistanceSensor.get("odsF");
+
+        }
+        catch (Exception p_exception)
+        {
+            ODSFront = null;
+        }
+
+        try
+        {
+            aVRaise =hardwareMap.servo.get("Raiser");
+
+        }
+        catch (Exception p_exception)
+        {
+            aVRaise = null;
+        }
+        try
+        {
+            aVTurn =hardwareMap.servo.get("Turner");
+
+        }
+        catch (Exception p_exception)
+        {
+            aVTurn = null;
+        }
+        try
+        {
+            color =hardwareMap.colorSensor.get("color");
+
+        }
+        catch (Exception p_exception)
+        {
+            color = null;
+        }
     }
 
     public void loop()
     {
-        if(time<6&&ODS.getLightDetectedRaw()<23&&!whiteLight) {
-            driveAutoBot(0, (float) .4); //GOES BACKWARDS
-        }
-        else if(ODS.getLightDetectedRaw()>=23)//WHITEANDINTHECENTER
+        aVTurn.setPosition(aVTurnPos);
+        aVRaise.setPosition(aVRaisePos);
+
+        if(time>=27)
+            step = 6;
+
+        //MOVING FORWARDS UNTIL DETECTS WHITE LINE
+        if(step==1)
         {
-            whiteLight=true;
+            color.enableLed(true);
+            if(time<6&&ODSFront.getLightDetectedRaw()<80&&!whiteLight1){
+                driveAutoBot(0,(float).4);//GOESBACKWARDS
+            }
+            else{
+                whiteLight=true;
+                stopBot();
+                future=time;
+                step++;
+            }
+        }
+        //MOVE BACK A LITTLE DUE TO THE INERTIA... ROBOT ROTATES
+        else if(step==2) {
+            if (time < future + 1) {
+                stopBot();
+            }
+            else if (time < future + 1.2) {
+                driveAutoBot(0, (float) -.25);
+            }
+            else {
+                stopBot();
+                step++;
+                future = time;
+            }
+        }
+        //LOOKING FOR BOTH COLOR SENSORS. IF IT DOESN'T THEN THE ROBOT GIVES UP
+        else if(step==3)
+        {
+            if(whiteLight)
+            {
+                //rotate in the direction that we need (MUST TEST)
+                driveAutoBot((float).3,0);          //******************************REDMODE -.3
+                if(time>future+4)
+                    step = 6;
+                else if(ODSCenter.getLightDetectedRaw()>=23&&ODSFront.getLightDetectedRaw()>=80) //WE NEED TO TEST A RANGE FOR THE WHITES
+                {
+                    whiteLight1=true;
+                    stopBot();
+                    step++;
+                    future = time;
+                }
+            }
+        }
+        //ONCE THE SENSORS ARE PARALLEL TO THE WHITE LINE, IT SET POSITION OF THE AUTONOMOUS ARM
+        else if(step==4)
+        {
+            if(whiteLight1&&whiteLight)
+            {
+                //future=time;
+
+                if(time<future+1){
+                    stopBot();
+                    turnAV("blue");//******************************REDMODE pass "red"
+                    //aVTurn.setPosition(0);//SET THE POSITION OF THE V FOR THE BUTTON
+                    //IFSTATEMENT TO DETECT COLOR,    IF ELSE     aVTurnPos = .82 else aVTurnPos = .18
+
+
+                }
+                else{
+                    future=time;
+                    step++;
+                }
+            }
+        }
+        //MOVES FORWARD SO IT CAN HIT THE BUTTON
+        else if(step==5) {
+            if (time < future + 1) {
+
+
+                driveAutoBot(0, (float) .2);
+                if(!detectedColor)
+                {
+                    turnAV("blue");//******************************REDMODE pass "red"
+                }
+
+
+            } else {
+                stopBot();
+                future = time;
+                step++;
+            }
+        }
+        //STOP ROBOT
+        else if(step == 6)
+        {
             stopBot();
         }
-        else if(time>=6)
-        {
-            stopBot();
-        }
+
         updateGamepadTelemetry();
+    }
+    public void turnAV(String c)
+    {
+        if(c.equals("red"))
+        {
+            if(color.red()>0&&color.green()==0&&color.blue()==0) //CHECKING FOR RED
+            {
+                aVTurnPos = .82;
+                detectedColor = true;
+
+            }
+            else if(color.red()==0&&color.green()==0&&color.blue()>0)  //CHECKING FOR BLUE
+            {
+                aVTurnPos = .18;
+                detectedColor = true;
+
+            }
 
 
+        }
+        else if(c.equals("blue"))
+        {
+            if(color.red()>0&&color.green()==0&&color.blue()==0) //CHECKING FOR RED
+            {
+                aVTurnPos = .18;//turn right
+                detectedColor = true;
 
+            }
+            else if(color.red()==0&&color.green()==0&&color.blue()>0)  //CHECKING FOR BLUE
+            {
+                aVTurnPos = .82;
+                detectedColor = true;
+
+            }
+
+        }
 
     }
-
     public void moveDCSwivel() {
         swivel.setPower(gamepad2.right_stick_y/2);
     }
@@ -445,13 +600,13 @@ public class AutonomousMode extends OpMode {
         //
         boolean l_return = false;
 
-        if (ODS != null)
+        if (ODSCenter != null)
         {
             //
             // Is the amount of light detected above the threshold for white
             // tape?
             //
-            if (ODS.getLightDetected () > 0.8)
+            if (ODSCenter.getLightDetected () > 0.8)
             {
                 l_return = true;
             }
@@ -552,10 +707,10 @@ public class AutonomousMode extends OpMode {
             telemetry.addData("29", "ULTRASONIC SENSOR is not here");
         }
 
-        if(ODS != null)
+        if(ODSCenter != null)
         {
-            telemetry.addData("31a", "ods " + ODS.getLightDetected());
-            telemetry.addData("31b", "ods " + ODS.getLightDetectedRaw());
+            telemetry.addData("31a", "ods " + ODSCenter.getLightDetected());
+            telemetry.addData("31b", "ods " + ODSCenter.getLightDetectedRaw());
         }
         else
         {
@@ -572,8 +727,27 @@ public class AutonomousMode extends OpMode {
             telemetry.addData("32","I don't see the white light!");
         }
 
+        if(ODSFront != null)
+        {
+            telemetry.addData("33a", "odsFront " + ODSFront.getLightDetected());
+            telemetry.addData("33b", "odsFront " + ODSFront.getLightDetectedRaw());
+        }
+        else
+        {
+            telemetry.addData("34", "ODSFront is not here");
+        }
 
+        if(detectWhiteTape() == true)
+        {
+            telemetry.addData("36","I see the white light!");
 
+        }
+        else
+        {
+            telemetry.addData("37","I don't see the white light!");
+        }
+
+        telemetry.addData("38","step #: " + step);
     }
     public void driveAutoBot(float xa,float ya)
     {
